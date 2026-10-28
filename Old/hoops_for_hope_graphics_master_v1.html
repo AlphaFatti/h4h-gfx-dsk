@@ -1,0 +1,2351 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hoops for Hope Graphics Master</title>
+<style>
+  :root {
+    --navy: #071B33;
+    --navy-deep: #041323;
+    --panel: #08192B;
+    --panel-2: #0B223B;
+    --white: #FFFFFF;
+    --muted: #B8C7D9;
+    --track: #29425E;
+    --candy-red: #E63946;
+    --green: #31D07F;
+    --red: #FF4D5A;
+    --gray: #718399;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    background: transparent;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  body.program-mode,
+  body.program-mode html {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+  }
+
+  button, input, select {
+    font: inherit;
+  }
+
+  /* ============================================================
+     PROGRAM VIEW — 1920×1080
+     ============================================================ */
+
+  #programView {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  body.panel-mode #programView { display: none; }
+
+  .program-graphic {
+    transition:
+      opacity 190ms ease,
+      transform 230ms cubic-bezier(.18,.76,.22,1),
+      visibility 0ms linear 230ms;
+  }
+
+  .program-graphic.graphic-hidden {
+    opacity: 0;
+    transform: translateY(18px);
+    visibility: hidden;
+  }
+
+  .program-graphic:not(.graphic-hidden) {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+    transition-delay: 0ms;
+  }
+
+  /* ---------- COUNTDOWN ---------- */
+
+  .countdown-bug {
+    position: absolute;
+    left: 48px;
+    bottom: 48px;
+    width: 340px;
+    height: 150px;
+    background: var(--navy);
+    color: var(--white);
+    overflow: hidden;
+  }
+
+  .countdown-base {
+    position: absolute;
+    inset: 0;
+    padding: 12px 14px 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    z-index: 1;
+  }
+
+  .countdown-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .countdown-value {
+    font-size: 58px;
+    line-height: .92;
+    font-weight: 900;
+    letter-spacing: -.04em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .countdown-labels {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 92%;
+    margin-top: 13px;
+    font-size: 10px;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .countdown-complete {
+    display: none;
+    font-size: 35px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  .countdown-complete span { color: var(--candy-red); }
+
+  .countdown-promo {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--candy-red);
+    color: var(--white);
+    text-align: center;
+    transform: translateX(-101%);
+    transition: transform 650ms cubic-bezier(.22,.8,.28,1);
+  }
+
+  .countdown-promo.show {
+    transform: translateX(0);
+  }
+
+  .countdown-promo-inner {
+    width: 100%;
+    padding: 10px 14px;
+    opacity: 0;
+    transform: translateX(-12px);
+    transition:
+      opacity 220ms ease 300ms,
+      transform 260ms ease 300ms;
+  }
+
+  .countdown-promo.show .countdown-promo-inner {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .countdown-promo-line-1 {
+    font-size: 31px;
+    line-height: .98;
+    font-weight: 900;
+    letter-spacing: .005em;
+    text-transform: uppercase;
+  }
+
+  .countdown-promo-line-2 {
+    margin-top: 10px;
+    font-size: 18px;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+  }
+
+  /* ---------- FUNDRAISER ---------- */
+
+  .fundraiser {
+    position: absolute;
+    left: 416px;
+    bottom: 48px;
+    width: 1456px;
+    height: 150px;
+    color: var(--white);
+    overflow: hidden;
+    background: transparent;
+  }
+
+  .fund-red-build,
+  .fund-blue-build {
+    position: absolute;
+    inset: 0;
+    transform: translateY(101%);
+    will-change: transform;
+  }
+
+  .fund-red-build {
+    z-index: 1;
+    background: var(--candy-red);
+  }
+
+  .fund-blue-build {
+    z-index: 2;
+    background: var(--navy);
+  }
+
+  .fundraiser.booting .fund-red-build {
+    animation: fundRedUp 360ms cubic-bezier(.18,.76,.22,1) both;
+  }
+
+  .fundraiser.booting .fund-blue-build {
+    animation: fundBlueUp 430ms cubic-bezier(.18,.76,.22,1) 210ms both;
+  }
+
+  .fundraiser.built .fund-red-build,
+  .fundraiser.built .fund-blue-build {
+    transform: translateY(0);
+  }
+
+  @keyframes fundRedUp {
+    from { transform: translateY(101%); }
+    to { transform: translateY(0); }
+  }
+
+  @keyframes fundBlueUp {
+    from { transform: translateY(101%); }
+    to { transform: translateY(0); }
+  }
+
+  .fund-accent-edge {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 5px;
+    z-index: 10;
+    background: var(--candy-red);
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+
+  .fundraiser.booting .fund-accent-edge {
+    animation: fundEdgeIn 280ms ease-out 565ms both;
+  }
+
+  .fundraiser.built .fund-accent-edge {
+    transform: scaleX(1);
+  }
+
+  @keyframes fundEdgeIn {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+
+  .fund-stats {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    padding: 17px 23px 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .fundraiser.booting .fund-stats {
+    animation: fundContentPop 260ms cubic-bezier(.17,.84,.32,1.18) 680ms both;
+  }
+
+  @keyframes fundContentPop {
+    from {
+      opacity: 0;
+      transform: translateY(9px) scale(.992);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .fund-stats.ticker-hidden {
+    opacity: 0;
+    transform: translateY(15px) scale(.994);
+    transition:
+      opacity 170ms cubic-bezier(.55,.06,.68,.19),
+      transform 220ms cubic-bezier(.55,.06,.68,.19);
+  }
+
+  .fund-stats.stats-return {
+    animation: fundStatsReturn 300ms cubic-bezier(.17,.84,.32,1.15) both;
+  }
+
+  @keyframes fundStatsReturn {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(.995);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .fund-top {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 28px;
+    min-width: 0;
+  }
+
+  .fund-block {
+    min-width: 0;
+    position: relative;
+  }
+
+  .fund-goal { text-align: right; }
+
+  .fund-block::after {
+    content: "";
+    position: absolute;
+    z-index: 6;
+    top: -5px;
+    bottom: -5px;
+    width: 58%;
+    background: var(--candy-red);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .fund-block:first-child::after {
+    left: -4px;
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+
+  .fund-goal::after {
+    right: -4px;
+    transform: scaleX(0);
+    transform-origin: right center;
+  }
+
+  .fundraiser.booting .fund-block:first-child::after {
+    animation: fundStatWipeLeft 390ms cubic-bezier(.18,.78,.24,1) 735ms both;
+  }
+
+  .fundraiser.booting .fund-goal::after {
+    animation: fundStatWipeRight 390ms cubic-bezier(.18,.78,.24,1) 825ms both;
+  }
+
+  @keyframes fundStatWipeLeft {
+    0% { opacity: 1; transform: scaleX(0); }
+    48% { opacity: 1; transform: scaleX(1); }
+    100% { opacity: 0; transform: scaleX(1); }
+  }
+
+  @keyframes fundStatWipeRight {
+    0% { opacity: 1; transform: scaleX(0); }
+    48% { opacity: 1; transform: scaleX(1); }
+    100% { opacity: 0; transform: scaleX(1); }
+  }
+
+  .fundraiser.booting .fund-block:first-child .fund-label,
+  .fundraiser.booting .fund-block:first-child .fund-raised {
+    animation: fundStatPunchLeft 310ms cubic-bezier(.16,.86,.29,1.22) 850ms both;
+  }
+
+  .fundraiser.booting .fund-goal .fund-label,
+  .fundraiser.booting .fund-goal .fund-goal-value {
+    animation: fundStatPunchRight 310ms cubic-bezier(.16,.86,.29,1.22) 940ms both;
+  }
+
+  @keyframes fundStatPunchLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-15px) translateY(3px) scale(1.045);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0) translateY(0) scale(1);
+    }
+  }
+
+  @keyframes fundStatPunchRight {
+    from {
+      opacity: 0;
+      transform: translateX(15px) translateY(3px) scale(1.045);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0) translateY(0) scale(1);
+    }
+  }
+
+  .fund-label {
+    margin-bottom: 4px;
+    font-size: 12px;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .fund-raised {
+    font-size: 45px;
+    line-height: .94;
+    font-weight: 900;
+    letter-spacing: -.025em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .fund-goal-value {
+    font-size: 30px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: -.015em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .fund-progress-track {
+    position: relative;
+    width: 100%;
+    height: 18px;
+    margin-top: 16px;
+    background: var(--track);
+    overflow: hidden;
+    transform-origin: left center;
+  }
+
+  .fundraiser.booting .fund-progress-track {
+    animation: fundTrackDraw 340ms cubic-bezier(.18,.78,.24,1) 1020ms both;
+  }
+
+  @keyframes fundTrackDraw {
+    from { opacity: 0; transform: scaleX(0); }
+    to { opacity: 1; transform: scaleX(1); }
+  }
+
+  .fund-progress-fill {
+    width: 0%;
+    height: 100%;
+    background: var(--candy-red);
+    transform-origin: left center;
+    transition: width 700ms cubic-bezier(.22,.8,.28,1);
+  }
+
+  .fundraiser.booting .fund-progress-fill {
+    animation: fundFillChase 620ms cubic-bezier(.20,.82,.24,1) 1240ms both;
+  }
+
+  @keyframes fundFillChase {
+    from { transform: scaleX(0); }
+    78% { transform: scaleX(1.035); }
+    to { transform: scaleX(1); }
+  }
+
+  .fund-progress-track::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    left: -8px;
+    background: var(--white);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .fundraiser.booting .fund-progress-track::after {
+    animation: fundProgressTick 520ms cubic-bezier(.18,.78,.24,1) 1110ms both;
+  }
+
+  @keyframes fundProgressTick {
+    0% { opacity: 0; left: -8px; }
+    18% { opacity: 1; }
+    82% { opacity: 1; left: calc(100% - 5px); }
+    100% { opacity: 0; left: calc(100% + 8px); }
+  }
+
+  /* Fundraiser ticker stinger */
+
+  .ticker-stinger {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    pointer-events: none;
+    visibility: hidden;
+    overflow: hidden;
+  }
+
+  .ticker-stinger.intro { visibility: visible; }
+
+  .stinger-red {
+    position: absolute;
+    inset: 0;
+    background: var(--candy-red);
+    transform: translateY(102%);
+  }
+
+  .ticker-stinger.intro .stinger-red {
+    animation: tickerRedPunch 280ms cubic-bezier(.16,.84,.27,1) both;
+  }
+
+  @keyframes tickerRedPunch {
+    0% { transform: translateY(102%); }
+    72% { transform: translateY(-5%); }
+    100% { transform: translateY(0); }
+  }
+
+  .stinger-blue {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 240px;
+    background: var(--navy);
+    transform: scaleX(0);
+    transform-origin: right center;
+  }
+
+  .ticker-stinger.intro .stinger-blue {
+    animation: tickerBlueSweep 310ms cubic-bezier(.18,.76,.22,1) 265ms both;
+  }
+
+  @keyframes tickerBlueSweep {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+
+  .stinger-white-tick {
+    position: absolute;
+    z-index: 2;
+    left: 240px;
+    top: 0;
+    width: 5px;
+    height: 100%;
+    background: var(--white);
+    transform: scaleY(0);
+    transform-origin: bottom center;
+  }
+
+  .ticker-stinger.intro .stinger-white-tick {
+    animation:
+      tickerTickUp 170ms ease-out 480ms both,
+      tickerTickAway 150ms ease-in 720ms forwards;
+  }
+
+  @keyframes tickerTickUp {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+  }
+
+  @keyframes tickerTickAway {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+
+  .ticker-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 7;
+    display: flex;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .ticker-layer.active { opacity: 1; }
+
+  .ticker-layer.ticker-exit {
+    animation: tickerLayerOut 180ms cubic-bezier(.55,.06,.68,.19) both;
+  }
+
+  @keyframes tickerLayerOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-8px); }
+  }
+
+  .ticker-label {
+    position: relative;
+    z-index: 2;
+    flex: 0 0 240px;
+    height: 100%;
+    background: var(--candy-red);
+    display: flex;
+    align-items: center;
+    padding: 0 26px;
+    font-size: 26px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .035em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .ticker-label-text { display: block; }
+
+  .ticker-layer.intro .ticker-label-text {
+    animation: tickerLabelPunch 250ms cubic-bezier(.14,.86,.30,1.28) both;
+  }
+
+  @keyframes tickerLabelPunch {
+    from {
+      opacity: 0;
+      transform: translateX(-18px) scale(1.08);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+  }
+
+  .ticker-viewport {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    background: var(--navy);
+  }
+
+  .ticker-track {
+    position: absolute;
+    left: 0;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    white-space: nowrap;
+    will-change: transform;
+  }
+
+  .ticker-item {
+    display: inline-flex;
+    align-items: baseline;
+    flex: 0 0 auto;
+    font-size: 28px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: -.01em;
+  }
+
+  .ticker-amount {
+    margin-left: 11px;
+    color: var(--muted);
+    font-size: 23px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ticker-separator {
+    display: inline-block;
+    flex: 0 0 auto;
+    width: 8px;
+    height: 8px;
+    margin: 0 28px;
+    background: var(--candy-red);
+  }
+
+  /* ============================================================
+     PANEL VIEW — responsive 3:4 OBS dock
+     ============================================================ */
+
+  #panelView { display: none; }
+
+  body.panel-mode {
+    width: 100%;
+    min-width: 300px;
+    height: 100%;
+    min-height: 420px;
+    overflow: auto;
+    background: var(--navy-deep);
+    color: var(--white);
+  }
+
+  body.panel-mode #panelView {
+    display: block;
+    min-height: 100vh;
+    background: var(--navy-deep);
+  }
+
+  .control-panel {
+    width: 100%;
+    max-width: 520px;
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .control-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 3px 2px 2px;
+  }
+
+  .control-kicker {
+    font-size: 10px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--candy-red);
+  }
+
+  .control-title {
+    margin-top: 5px;
+    font-size: 22px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: -.02em;
+    text-transform: uppercase;
+  }
+
+  .link-pill {
+    min-height: 30px;
+    padding: 0 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid #24405E;
+    background: var(--panel);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .status-dot {
+    width: 9px;
+    height: 9px;
+    flex: 0 0 9px;
+    background: var(--gray);
+  }
+
+  .status-dot.green { background: var(--green); }
+  .status-dot.red { background: var(--red); }
+
+  .control-card {
+    background: var(--panel);
+    border-left: 5px solid var(--candy-red);
+    padding: 14px;
+  }
+
+  .control-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .control-card-title {
+    font-size: 17px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+  }
+
+  .visibility-badge {
+    font-size: 9px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .visibility-badge.on { color: var(--green); }
+  .visibility-badge.off { color: var(--red); }
+
+  .next-animation {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 14px;
+    padding: 11px 12px;
+    background: var(--panel-2);
+    margin-bottom: 10px;
+  }
+
+  .next-label,
+  .mini-label {
+    font-size: 9px;
+    line-height: 1.1;
+    font-weight: 900;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .next-name {
+    margin-top: 5px;
+    font-size: 14px;
+    line-height: 1;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .next-time {
+    font-size: 29px;
+    line-height: .95;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -.04em;
+  }
+
+  .state-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 0 2px 11px;
+    font-size: 10px;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .state-value {
+    color: var(--white);
+    text-align: right;
+  }
+
+  .control-buttons {
+    display: grid;
+    grid-template-columns: 1.35fr .8fr .9fr;
+    gap: 7px;
+  }
+
+  .control-btn {
+    min-height: 42px;
+    border: 0;
+    padding: 8px 9px;
+    background: #12314F;
+    color: var(--white);
+    font-size: 10px;
+    line-height: 1.05;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .control-btn.primary { background: var(--candy-red); }
+  .control-btn.danger { background: #5A1821; }
+  .control-btn.visibility { background: #1B3956; }
+
+  .control-btn:disabled {
+    opacity: .34;
+    cursor: default;
+  }
+
+  .sync-status {
+    margin-top: 11px;
+    padding: 11px 12px;
+    background: var(--panel-2);
+  }
+
+  .sync-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sync-title {
+    font-size: 11px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+  }
+
+  .sync-sub {
+    margin-top: 7px;
+    font-size: 10px;
+    line-height: 1.3;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  .sync-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+    margin-top: 9px;
+  }
+
+  .sync-cell {
+    padding: 9px 10px;
+    background: #06182A;
+  }
+
+  .sync-value {
+    margin-top: 5px;
+    font-size: 16px;
+    line-height: 1;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sync-actions {
+    margin-top: 8px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .sync-now {
+    min-height: 34px;
+    padding: 0 12px;
+    border: 0;
+    background: #1B3956;
+    color: var(--white);
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .panel-note {
+    margin-top: auto;
+    padding: 4px 2px 0;
+    font-size: 9px;
+    line-height: 1.35;
+    font-weight: 700;
+    color: #8193A8;
+  }
+
+  @media (max-width: 370px) {
+    .control-panel { padding: 11px; gap: 9px; }
+    .control-title { font-size: 19px; }
+    .next-time { font-size: 25px; }
+    .control-buttons { grid-template-columns: 1fr 1fr; }
+    .control-btn.visibility { grid-column: 1 / -1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .program-graphic,
+    .countdown-promo,
+    .countdown-promo-inner,
+    .fund-red-build,
+    .fund-blue-build,
+    .fund-stats,
+    .fund-accent-edge,
+    .fund-progress-track,
+    .fund-progress-fill,
+    .fund-label,
+    .fund-raised,
+    .fund-goal-value,
+    .ticker-layer,
+    .ticker-stinger,
+    .stinger-red,
+    .stinger-blue,
+    .stinger-white-tick {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     PROGRAM / ON-AIR VIEW
+     ============================================================ -->
+<main id="programView" aria-label="Hoops for Hope on-air graphics">
+
+  <section class="countdown-bug program-graphic" id="countdownGraphic"
+           aria-label="Countdown until the end of Hoops for Hope">
+    <div class="countdown-base">
+      <div class="countdown-wrap" id="countdownActive">
+        <div class="countdown-value" id="countdownValue">24:00:00</div>
+        <div class="countdown-labels" aria-hidden="true">
+          <div>Hours</div>
+          <div>Minutes</div>
+          <div>Seconds</div>
+        </div>
+      </div>
+
+      <div class="countdown-complete" id="countdownComplete">
+        Event <span>Complete</span>
+      </div>
+    </div>
+
+    <div class="countdown-promo" id="countdownPromo" aria-hidden="true">
+      <div class="countdown-promo-inner">
+        <div class="countdown-promo-line-1">Hoops For Hope 2026</div>
+        <div class="countdown-promo-line-2">Oct 9–Oct 10</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="fundraiser program-graphic booting" id="fundraiserGraphic"
+           aria-label="Hoops for Hope fundraising progress">
+
+    <div class="fund-red-build" aria-hidden="true"></div>
+    <div class="fund-blue-build" aria-hidden="true"></div>
+
+    <div class="fund-stats" id="fundStats">
+      <div class="fund-top">
+        <div class="fund-block">
+          <div class="fund-label">Raised</div>
+          <div class="fund-raised" id="fundRaised">$26,939.98</div>
+        </div>
+
+        <div class="fund-block fund-goal">
+          <div class="fund-label">2026 Goal</div>
+          <div class="fund-goal-value" id="fundGoal">$70,000</div>
+        </div>
+      </div>
+
+      <div class="fund-progress-track">
+        <div class="fund-progress-fill" id="fundFill"></div>
+      </div>
+    </div>
+
+    <div class="ticker-stinger" id="tickerStinger" aria-hidden="true">
+      <div class="stinger-red"></div>
+      <div class="stinger-blue"></div>
+      <div class="stinger-white-tick"></div>
+    </div>
+
+    <div class="ticker-layer" id="tickerLayer" aria-label="Top Players">
+      <div class="ticker-label">
+        <span class="ticker-label-text">Top Players:</span>
+      </div>
+      <div class="ticker-viewport" id="tickerViewport">
+        <div class="ticker-track" id="tickerTrack"></div>
+      </div>
+    </div>
+
+    <div class="fund-accent-edge" aria-hidden="true"></div>
+  </section>
+</main>
+
+<!-- ============================================================
+     OBS CONTROL DOCK VIEW
+     Load this SAME file with #panel appended.
+     ============================================================ -->
+<main id="panelView" aria-label="Hoops for Hope graphics control panel">
+  <div class="control-panel">
+    <header class="control-header">
+      <div>
+        <div class="control-kicker">Hoops for Hope 2026</div>
+        <div class="control-title">GFX Control</div>
+      </div>
+      <div class="link-pill">
+        <span class="status-dot" id="overlayLinkDot"></span>
+        <span id="overlayLinkText">Waiting for overlay</span>
+      </div>
+    </header>
+
+    <section class="control-card">
+      <div class="control-card-head">
+        <div class="control-card-title">Countdown</div>
+        <div class="visibility-badge" id="countdownVisibility">---</div>
+      </div>
+
+      <div class="next-animation">
+        <div>
+          <div class="next-label">Next automatic animation</div>
+          <div class="next-name">Event ID Takeover</div>
+        </div>
+        <div class="next-time" id="countdownNext">--:--</div>
+      </div>
+
+      <div class="state-row">
+        <span>Current state</span>
+        <span class="state-value" id="countdownPanelState">---</span>
+      </div>
+
+      <div class="control-buttons">
+        <button class="control-btn primary" id="countdownRunBtn" type="button">Run Promo</button>
+        <button class="control-btn danger" id="countdownStopBtn" type="button">Stop</button>
+        <button class="control-btn visibility" id="countdownVisibilityBtn" type="button">Hide</button>
+      </div>
+    </section>
+
+    <section class="control-card">
+      <div class="control-card-head">
+        <div class="control-card-title">Fundraiser</div>
+        <div class="visibility-badge" id="fundVisibility">---</div>
+      </div>
+
+      <div class="next-animation">
+        <div>
+          <div class="next-label">Next automatic animation</div>
+          <div class="next-name">Top Players Ticker</div>
+        </div>
+        <div class="next-time" id="fundNext">--:--</div>
+      </div>
+
+      <div class="state-row">
+        <span>Current state</span>
+        <span class="state-value" id="fundPanelState">---</span>
+      </div>
+
+      <div class="control-buttons">
+        <button class="control-btn primary" id="fundRunBtn" type="button">Run Top Players</button>
+        <button class="control-btn danger" id="fundStopBtn" type="button">Stop</button>
+        <button class="control-btn visibility" id="fundVisibilityBtn" type="button">Hide</button>
+      </div>
+
+      <div class="sync-status">
+        <div class="sync-head">
+          <span class="status-dot" id="syncDot"></span>
+          <span class="sync-title" id="syncTitle">Waiting for sync</span>
+        </div>
+        <div class="sync-sub" id="syncSub">
+          Cached fundraiser values remain on air until a valid update is received.
+        </div>
+
+        <div class="sync-grid">
+          <div class="sync-cell">
+            <div class="mini-label">Next Sync</div>
+            <div class="sync-value" id="nextSync">--:--</div>
+          </div>
+          <div class="sync-cell">
+            <div class="mini-label" id="syncAgeLabel">Last Good</div>
+            <div class="sync-value" id="syncAge">---</div>
+          </div>
+        </div>
+
+        <div class="sync-actions">
+          <button class="sync-now" id="syncNowBtn" type="button">Sync Now</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="panel-note">
+      Keep the 1920×1080 browser source loaded continuously for scheduling,
+      data sync, and dock control. The on-air show/hide buttons hide the graphics
+      internally without shutting down the browser source.
+    </div>
+  </div>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  const PANEL_MODE =
+    window.location.hash.toLowerCase() === "#panel" ||
+    new URLSearchParams(window.location.search).get("panel") === "1";
+
+  document.body.classList.add(PANEL_MODE ? "panel-mode" : "program-mode");
+
+  const CHANNEL_NAME = "h4h-gfx-master-v1";
+  const STATE_KEY = "h4h-gfx-master-state-v1";
+  const COMMAND_KEY = "h4h-gfx-master-command-v1";
+  const PREF_KEY = "h4h-gfx-master-prefs-v1";
+  const DATA_KEY = "h4h-gfx-master-data-v1";
+
+  function createChannel() {
+    try {
+      return ("BroadcastChannel" in window)
+        ? new BroadcastChannel(CHANNEL_NAME)
+        : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function lsRead(key) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function lsWrite(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function uid() {
+    return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  }
+
+  function formatSpan(ms, includeHours = true) {
+    if (!Number.isFinite(ms)) return "---";
+    if (ms <= 0) return "NOW";
+
+    const total = Math.ceil(ms / 1000);
+    const hours = Math.floor(total / 3600);
+    const minutes = Math.floor((total % 3600) / 60);
+    const seconds = total % 60;
+
+    if (includeHours && hours > 0) {
+      return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    }
+
+    const totalMinutes = Math.floor(total / 60);
+    return `${String(totalMinutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  }
+
+  /* ============================================================
+     PROGRAM CONTROLLER
+     ============================================================ */
+
+  function initProgram() {
+    const channel = createChannel();
+
+    const EVENT_TARGET =
+      new Date("2026-10-10T07:00:00-04:00").getTime();
+
+    const COUNTDOWN_PROMO_DURATION = 7000;
+    const COUNTDOWN_INITIAL_DELAY = 1200;
+    const COUNTDOWN_MIN_INTERVAL = 10 * 60 * 1000;
+    const COUNTDOWN_MAX_INTERVAL = 15 * 60 * 1000;
+
+    const TICKER_INITIAL_DELAY = 15 * 1000;
+    const TICKER_INTERVAL = 15 * 60 * 1000;
+    const TICKER_SPEED_PX_PER_SEC = 125;
+
+    const SYNC_INTERVAL = 60 * 1000;
+    const REQUEST_TIMEOUT = 9000;
+
+    const SEED = {
+      raised: 26939.98,
+      goal: 70000.00,
+      players: [
+        { name: "Phil Arsenault", amount: 8650.00 },
+        { name: "Paul Watters", amount: 2115.31 },
+        { name: "Adam and Valerie Radl", amount: 1590.00 },
+        { name: "Elsie Concepción", amount: 1520.00 },
+        { name: "Joshua Dunlavey", amount: 1505.00 },
+        { name: "David Martin", amount: 1150.00 },
+        { name: "Brandon Moye", amount: 1100.00 },
+        { name: "Jason Reinhardt", amount: 1000.00 },
+        { name: "Jay Grasso", amount: 1000.00 },
+        { name: "Ben Elfner", amount: 775.00 },
+        { name: "Logan and Chris Hall", amount: 730.00 },
+        { name: "Kevin Shen", amount: 500.00 }
+      ]
+    };
+
+    const countdownGraphic = document.getElementById("countdownGraphic");
+    const countdownValue = document.getElementById("countdownValue");
+    const countdownActive = document.getElementById("countdownActive");
+    const countdownComplete = document.getElementById("countdownComplete");
+    const countdownPromo = document.getElementById("countdownPromo");
+
+    const fundraiserGraphic = document.getElementById("fundraiserGraphic");
+    const fundStats = document.getElementById("fundStats");
+    const fundRaised = document.getElementById("fundRaised");
+    const fundGoal = document.getElementById("fundGoal");
+    const fundFill = document.getElementById("fundFill");
+    const tickerStinger = document.getElementById("tickerStinger");
+    const tickerLayer = document.getElementById("tickerLayer");
+    const tickerViewport = document.getElementById("tickerViewport");
+    const tickerTrack = document.getElementById("tickerTrack");
+
+    const prefs = Object.assign(
+      { countdownVisible: true, fundraiserVisible: true },
+      lsRead(PREF_KEY) || {}
+    );
+
+    const savedData = lsRead(DATA_KEY);
+    let lastGood = (
+      savedData &&
+      Number.isFinite(savedData.raised) &&
+      Number.isFinite(savedData.goal) &&
+      Array.isArray(savedData.players) &&
+      savedData.players.length
+    ) ? savedData : SEED;
+
+    const state = {
+      version: 1,
+      updatedAt: Date.now(),
+      countdown: {
+        visible: !!prefs.countdownVisible,
+        animation: "idle",
+        nextAnimationAt: null,
+        eventComplete: false
+      },
+      fundraiser: {
+        visible: !!prefs.fundraiserVisible,
+        animation: "build",
+        nextAnimationAt: null,
+        raised: lastGood.raised,
+        goal: lastGood.goal,
+        playerCount: lastGood.players.length,
+        sync: {
+          ok: null,
+          inFlight: false,
+          lastAttemptAt: null,
+          lastSuccessAt: savedData && savedData.lastSuccessAt
+            ? savedData.lastSuccessAt
+            : null,
+          offlineSinceAt: null,
+          nextSyncAt: null,
+          error: null
+        }
+      }
+    };
+
+    const money = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+
+    const wholeMoney = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0
+    });
+
+    let countdownScheduleTimer = null;
+    let countdownEndTimer = null;
+    let tickerScheduleTimer = null;
+    let tickerTimers = [];
+    let syncTimer = null;
+    let syncInFlight = false;
+    let lastCommandId = null;
+
+    function persistPrefs() {
+      lsWrite(PREF_KEY, {
+        countdownVisible: state.countdown.visible,
+        fundraiserVisible: state.fundraiser.visible
+      });
+    }
+
+    function publishState() {
+      state.updatedAt = Date.now();
+      lsWrite(STATE_KEY, state);
+
+      if (channel) {
+        try {
+          channel.postMessage({ type: "state", state });
+        } catch (_) {}
+      }
+    }
+
+    function setCountdownVisibility(visible) {
+      state.countdown.visible = !!visible;
+      countdownGraphic.classList.toggle(
+        "graphic-hidden",
+        !state.countdown.visible
+      );
+      persistPrefs();
+      publishState();
+    }
+
+    function setFundraiserVisibility(visible) {
+      state.fundraiser.visible = !!visible;
+      fundraiserGraphic.classList.toggle(
+        "graphic-hidden",
+        !state.fundraiser.visible
+      );
+      persistPrefs();
+      publishState();
+    }
+
+    function randomCountdownInterval() {
+      return Math.floor(
+        Math.random() *
+        (COUNTDOWN_MAX_INTERVAL - COUNTDOWN_MIN_INTERVAL + 1)
+      ) + COUNTDOWN_MIN_INTERVAL;
+    }
+
+    function clearCountdownSchedule() {
+      if (countdownScheduleTimer) {
+        clearTimeout(countdownScheduleTimer);
+        countdownScheduleTimer = null;
+      }
+    }
+
+    function scheduleCountdown(delayMs) {
+      clearCountdownSchedule();
+
+      if (state.countdown.eventComplete) {
+        state.countdown.nextAnimationAt = null;
+        publishState();
+        return;
+      }
+
+      state.countdown.nextAnimationAt = Date.now() + delayMs;
+      publishState();
+
+      countdownScheduleTimer = setTimeout(() => {
+        if (state.countdown.visible) {
+          runCountdownPromo("auto");
+        } else {
+          scheduleCountdown(randomCountdownInterval());
+        }
+      }, delayMs);
+    }
+
+    function stopCountdownPromo() {
+      if (countdownEndTimer) {
+        clearTimeout(countdownEndTimer);
+        countdownEndTimer = null;
+      }
+
+      countdownPromo.classList.remove("show");
+      state.countdown.animation = "idle";
+      publishState();
+    }
+
+    function runCountdownPromo(source = "manual") {
+      if (!state.countdown.visible) return;
+
+      stopCountdownPromo();
+      clearCountdownSchedule();
+
+      state.countdown.animation = "promo";
+      countdownPromo.classList.add("show");
+
+      if (!state.countdown.eventComplete) {
+        scheduleCountdown(randomCountdownInterval());
+      }
+
+      publishState();
+
+      countdownEndTimer = setTimeout(() => {
+        countdownPromo.classList.remove("show");
+        state.countdown.animation = "idle";
+        countdownEndTimer = null;
+        publishState();
+      }, COUNTDOWN_PROMO_DURATION);
+    }
+
+    function updateEventCountdown() {
+      const diff = EVENT_TARGET - Date.now();
+
+      if (diff <= 0) {
+        countdownValue.textContent = "00:00:00";
+        countdownActive.style.display = "none";
+        countdownComplete.style.display = "block";
+
+        if (!state.countdown.eventComplete) {
+          state.countdown.eventComplete = true;
+          clearCountdownSchedule();
+          state.countdown.nextAnimationAt = null;
+          publishState();
+        }
+        return;
+      }
+
+      const totalSeconds = Math.floor(diff / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      countdownValue.textContent =
+        `${String(hours).padStart(2, "0")}:` +
+        `${String(minutes).padStart(2, "0")}:` +
+        `${String(seconds).padStart(2, "0")}`;
+    }
+
+    function renderFundraiser() {
+      const pct = Math.max(
+        0,
+        Math.min(100, (lastGood.raised / lastGood.goal) * 100)
+      );
+
+      fundRaised.textContent = money.format(lastGood.raised);
+      fundGoal.textContent = wholeMoney.format(lastGood.goal);
+      fundFill.style.width = pct.toFixed(4) + "%";
+
+      state.fundraiser.raised = lastGood.raised;
+      state.fundraiser.goal = lastGood.goal;
+      state.fundraiser.playerCount = lastGood.players.length;
+    }
+
+    function settleFundraiserBuild() {
+      setTimeout(() => {
+        fundraiserGraphic.classList.remove("booting");
+        fundraiserGraphic.classList.add("built");
+
+        if (state.fundraiser.animation === "build") {
+          state.fundraiser.animation = "idle";
+          publishState();
+        }
+      }, 1950);
+    }
+
+    function forceFundraiserBuilt() {
+      fundraiserGraphic.classList.remove("booting");
+      fundraiserGraphic.classList.add("built");
+    }
+
+    function renderTickerItems(players) {
+      tickerTrack.replaceChildren();
+
+      players.forEach((player, index) => {
+        const item = document.createElement("span");
+        item.className = "ticker-item";
+
+        const name = document.createElement("span");
+        name.textContent = player.name;
+
+        const amount = document.createElement("span");
+        amount.className = "ticker-amount";
+        amount.textContent = money.format(player.amount);
+
+        item.append(name, amount);
+        tickerTrack.appendChild(item);
+
+        if (index !== players.length - 1) {
+          const separator = document.createElement("span");
+          separator.className = "ticker-separator";
+          separator.setAttribute("aria-hidden", "true");
+          tickerTrack.appendChild(separator);
+        }
+      });
+    }
+
+    function clearTickerTimers() {
+      tickerTimers.forEach(clearTimeout);
+      tickerTimers = [];
+    }
+
+    function addTickerTimer(fn, delay) {
+      const id = setTimeout(fn, delay);
+      tickerTimers.push(id);
+      return id;
+    }
+
+    function clearTickerSchedule() {
+      if (tickerScheduleTimer) {
+        clearTimeout(tickerScheduleTimer);
+        tickerScheduleTimer = null;
+      }
+    }
+
+    function scheduleTicker(delayMs) {
+      clearTickerSchedule();
+      state.fundraiser.nextAnimationAt = Date.now() + delayMs;
+      publishState();
+
+      tickerScheduleTimer = setTimeout(() => {
+        if (state.fundraiser.visible) {
+          runTicker("auto");
+        } else {
+          scheduleTicker(TICKER_INTERVAL);
+        }
+      }, delayMs);
+    }
+
+    function restoreFundraiserStats(animated = true) {
+      clearTickerTimers();
+
+      tickerLayer.classList.remove("active", "intro", "ticker-exit");
+      tickerStinger.classList.remove("intro");
+      tickerTrack.style.transition = "none";
+      tickerTrack.style.transform = "translateX(0px)";
+      tickerTrack.replaceChildren();
+
+      fundStats.classList.remove(
+        "ticker-hidden",
+        "stats-return"
+      );
+
+      if (animated) {
+        void fundStats.offsetWidth;
+        fundStats.classList.add("stats-return");
+
+        addTickerTimer(() => {
+          fundStats.classList.remove("stats-return");
+          state.fundraiser.animation = "idle";
+          publishState();
+        }, 320);
+      } else {
+        state.fundraiser.animation = "idle";
+        publishState();
+      }
+    }
+
+    function stopTicker() {
+      if (
+        state.fundraiser.animation !== "ticker" &&
+        state.fundraiser.animation !== "build"
+      ) {
+        return;
+      }
+
+      forceFundraiserBuilt();
+
+      if (state.fundraiser.animation === "build") {
+        state.fundraiser.animation = "idle";
+        publishState();
+        return;
+      }
+
+      clearTickerTimers();
+      tickerLayer.classList.remove("intro");
+      tickerLayer.classList.add("ticker-exit");
+
+      addTickerTimer(() => {
+        restoreFundraiserStats(true);
+      }, 185);
+    }
+
+    function runTicker(source = "manual") {
+      if (!state.fundraiser.visible) return;
+      if (!lastGood.players || !lastGood.players.length) return;
+
+      clearTickerSchedule();
+      clearTickerTimers();
+      forceFundraiserBuilt();
+      restoreFundraiserStats(false);
+
+      state.fundraiser.animation = "ticker";
+      scheduleTicker(TICKER_INTERVAL);
+      publishState();
+
+      renderTickerItems(lastGood.players);
+
+      fundStats.classList.add("ticker-hidden");
+
+      addTickerTimer(() => {
+        tickerStinger.classList.remove("intro");
+        void tickerStinger.offsetWidth;
+        tickerStinger.classList.add("intro");
+      }, 110);
+
+      addTickerTimer(() => {
+        tickerLayer.classList.remove("ticker-exit", "intro");
+        tickerLayer.classList.add("active", "intro");
+
+        const viewportWidth = tickerViewport.clientWidth;
+        const trackWidth = tickerTrack.scrollWidth;
+        const startX = viewportWidth + 30;
+        const endX = -trackWidth - 30;
+        const distance = startX - endX;
+
+        const durationMs = Math.max(
+          12000,
+          Math.round(
+            (distance / TICKER_SPEED_PX_PER_SEC) * 1000
+          )
+        );
+
+        tickerTrack.style.transition = "none";
+        tickerTrack.style.transform = `translateX(${startX}px)`;
+
+        addTickerTimer(() => {
+          tickerStinger.classList.remove("intro");
+          tickerTrack.style.transition =
+            `transform ${durationMs}ms linear`;
+          tickerTrack.style.transform = `translateX(${endX}px)`;
+
+          addTickerTimer(() => {
+            tickerLayer.classList.remove("intro");
+            tickerLayer.classList.add("ticker-exit");
+
+            addTickerTimer(() => {
+              restoreFundraiserStats(true);
+            }, 190);
+          }, durationMs + 100);
+
+        }, 290);
+
+      }, 610);
+    }
+
+    function rawToText(raw) {
+      if (/<(?:html|body|div|section|h[1-6]|p|span)\b/i.test(raw)) {
+        try {
+          const doc = new DOMParser().parseFromString(raw, "text/html");
+          return doc.body ? doc.body.innerText : raw;
+        } catch (_) {}
+      }
+      return raw;
+    }
+
+    function parseOverall(text) {
+      const match = text.match(
+        /\$([\d,]+(?:\.\d{2})?)\s+of\s+\$([\d,]+(?:\.\d{2})?)\s+goal/i
+      );
+
+      if (!match) {
+        throw new Error("Fundraiser total not found");
+      }
+
+      const raised = Number(match[1].replace(/,/g, ""));
+      const goal = Number(match[2].replace(/,/g, ""));
+
+      if (
+        !Number.isFinite(raised) ||
+        !Number.isFinite(goal) ||
+        raised < 0 ||
+        goal < 50000
+      ) {
+        throw new Error("Fundraiser total invalid");
+      }
+
+      return { raised, goal };
+    }
+
+    function parseTopPlayers(raw) {
+      const markdownSection = raw.match(
+        /(?:^|\n)##\s*Top Players\s*([\s\S]*?)(?=(?:^|\n)##\s*Select a Player)/im
+      );
+
+      if (markdownSection) {
+        const players = [];
+        const re =
+          /(?:^|\n)###\s*([^\n]+)[\s\S]*?Raised\s+\$([\d,]+(?:\.\d{2})?)/gim;
+
+        let match;
+        while ((match = re.exec(markdownSection[1])) !== null) {
+          const name = match[1].trim();
+          const amount = Number(match[2].replace(/,/g, ""));
+
+          if (
+            name &&
+            Number.isFinite(amount) &&
+            amount >= 0
+          ) {
+            players.push({ name, amount });
+          }
+        }
+
+        if (players.length) return players;
+      }
+
+      try {
+        const doc =
+          new DOMParser().parseFromString(raw, "text/html");
+        const all = [...doc.body.querySelectorAll("*")];
+
+        const start = all.findIndex(
+          el =>
+            el.tagName === "H2" &&
+            el.textContent.trim().toLowerCase() === "top players"
+        );
+
+        if (start >= 0) {
+          let end = all.length;
+
+          for (let i = start + 1; i < all.length; i++) {
+            if (
+              all[i].tagName === "H2" &&
+              all[i].textContent.trim().toLowerCase() ===
+                "select a player"
+            ) {
+              end = i;
+              break;
+            }
+          }
+
+          const players = [];
+          const headings = all
+            .slice(start + 1, end)
+            .filter(el => el.tagName === "H3");
+
+          for (const h3 of headings) {
+            const name = h3.textContent.trim();
+            let node = h3;
+            let amount = null;
+
+            for (
+              let depth = 0;
+              depth < 7 && node;
+              depth++, node = node.parentElement
+            ) {
+              const match = (node.textContent || "").match(
+                /Raised\s+\$([\d,]+(?:\.\d{2})?)/i
+              );
+
+              if (match) {
+                amount = Number(match[1].replace(/,/g, ""));
+                break;
+              }
+            }
+
+            if (
+              name &&
+              Number.isFinite(amount) &&
+              amount >= 0
+            ) {
+              players.push({ name, amount });
+            }
+          }
+
+          if (players.length) return players;
+        }
+      } catch (_) {}
+
+      throw new Error("Top Players not found");
+    }
+
+    async function fetchText(url) {
+      const controller = new AbortController();
+      const timeout = setTimeout(
+        () => controller.abort(),
+        REQUEST_TIMEOUT
+      );
+
+      try {
+        const response = await fetch(url, {
+          cache: "no-store",
+          signal: controller.signal
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        return await response.text();
+      } finally {
+        clearTimeout(timeout);
+      }
+    }
+
+    async function fetchFundraiserPage() {
+      const cacheBust = Date.now();
+
+      try {
+        return await fetchText(
+          `https://playforapurpose.org/?overlay_refresh=${cacheBust}`
+        );
+      } catch (_) {
+        return await fetchText(
+          `https://r.jina.ai/https://playforapurpose.org/?overlay_refresh=${cacheBust}`
+        );
+      }
+    }
+
+    function scheduleNextSync(delayMs = SYNC_INTERVAL) {
+      if (syncTimer) clearTimeout(syncTimer);
+
+      state.fundraiser.sync.nextSyncAt =
+        Date.now() + delayMs;
+
+      publishState();
+
+      syncTimer = setTimeout(() => {
+        syncNow();
+      }, delayMs);
+    }
+
+    async function syncNow() {
+      if (syncInFlight) return;
+
+      if (syncTimer) {
+        clearTimeout(syncTimer);
+        syncTimer = null;
+      }
+
+      syncInFlight = true;
+      state.fundraiser.sync.inFlight = true;
+      state.fundraiser.sync.lastAttemptAt = Date.now();
+      state.fundraiser.sync.nextSyncAt = null;
+      publishState();
+
+      try {
+        const raw = await fetchFundraiserPage();
+        const plain = rawToText(raw);
+        const overall = parseOverall(plain);
+
+        let players = null;
+        try {
+          players = parseTopPlayers(raw);
+        } catch (_) {
+          players = lastGood.players;
+        }
+
+        lastGood = {
+          raised: overall.raised,
+          goal: overall.goal,
+          players:
+            players && players.length
+              ? players
+              : lastGood.players,
+          lastSuccessAt: Date.now()
+        };
+
+        lsWrite(DATA_KEY, lastGood);
+        renderFundraiser();
+
+        state.fundraiser.sync.ok = true;
+        state.fundraiser.sync.lastSuccessAt =
+          lastGood.lastSuccessAt;
+        state.fundraiser.sync.offlineSinceAt = null;
+        state.fundraiser.sync.error = null;
+
+      } catch (error) {
+        state.fundraiser.sync.ok = false;
+
+        if (!state.fundraiser.sync.offlineSinceAt) {
+          state.fundraiser.sync.offlineSinceAt = Date.now();
+        }
+
+        state.fundraiser.sync.error =
+          error && error.message
+            ? error.message
+            : "Page not responding";
+
+        renderFundraiser();
+
+      } finally {
+        syncInFlight = false;
+        state.fundraiser.sync.inFlight = false;
+        scheduleNextSync(SYNC_INTERVAL);
+        publishState();
+      }
+    }
+
+    function processCommand(command) {
+      if (!command || !command.id) return;
+      if (command.id === lastCommandId) return;
+
+      lastCommandId = command.id;
+
+      switch (command.action) {
+        case "countdown.run":
+          runCountdownPromo("manual");
+          break;
+
+        case "countdown.stop":
+          stopCountdownPromo();
+          break;
+
+        case "countdown.toggle":
+          setCountdownVisibility(
+            !state.countdown.visible
+          );
+          break;
+
+        case "countdown.show":
+          setCountdownVisibility(true);
+          break;
+
+        case "countdown.hide":
+          setCountdownVisibility(false);
+          break;
+
+        case "fundraiser.runTicker":
+          runTicker("manual");
+          break;
+
+        case "fundraiser.stop":
+          stopTicker();
+          break;
+
+        case "fundraiser.toggle":
+          setFundraiserVisibility(
+            !state.fundraiser.visible
+          );
+          break;
+
+        case "fundraiser.show":
+          setFundraiserVisibility(true);
+          break;
+
+        case "fundraiser.hide":
+          setFundraiserVisibility(false);
+          break;
+
+        case "fundraiser.syncNow":
+          syncNow();
+          break;
+      }
+
+      publishState();
+    }
+
+    if (channel) {
+      channel.addEventListener("message", event => {
+        const msg = event.data;
+        if (msg && msg.type === "command") {
+          processCommand(msg.command);
+        }
+      });
+    }
+
+    setInterval(() => {
+      const command = lsRead(COMMAND_KEY);
+      if (command) processCommand(command);
+    }, 150);
+
+    setInterval(publishState, 500);
+
+    setCountdownVisibility(state.countdown.visible);
+    setFundraiserVisibility(state.fundraiser.visible);
+
+    renderFundraiser();
+    updateEventCountdown();
+    setInterval(updateEventCountdown, 250);
+
+    scheduleCountdown(COUNTDOWN_INITIAL_DELAY);
+    scheduleTicker(TICKER_INITIAL_DELAY);
+
+    settleFundraiserBuild();
+
+    syncNow();
+
+    publishState();
+  }
+
+  /* ============================================================
+     PANEL CONTROLLER
+     ============================================================ */
+
+  function initPanel() {
+    const channel = createChannel();
+
+    const overlayLinkDot =
+      document.getElementById("overlayLinkDot");
+    const overlayLinkText =
+      document.getElementById("overlayLinkText");
+
+    const countdownVisibility =
+      document.getElementById("countdownVisibility");
+    const countdownNext =
+      document.getElementById("countdownNext");
+    const countdownPanelState =
+      document.getElementById("countdownPanelState");
+    const countdownRunBtn =
+      document.getElementById("countdownRunBtn");
+    const countdownStopBtn =
+      document.getElementById("countdownStopBtn");
+    const countdownVisibilityBtn =
+      document.getElementById("countdownVisibilityBtn");
+
+    const fundVisibility =
+      document.getElementById("fundVisibility");
+    const fundNext =
+      document.getElementById("fundNext");
+    const fundPanelState =
+      document.getElementById("fundPanelState");
+    const fundRunBtn =
+      document.getElementById("fundRunBtn");
+    const fundStopBtn =
+      document.getElementById("fundStopBtn");
+    const fundVisibilityBtn =
+      document.getElementById("fundVisibilityBtn");
+
+    const syncDot = document.getElementById("syncDot");
+    const syncTitle =
+      document.getElementById("syncTitle");
+    const syncSub =
+      document.getElementById("syncSub");
+    const nextSync =
+      document.getElementById("nextSync");
+    const syncAgeLabel =
+      document.getElementById("syncAgeLabel");
+    const syncAge =
+      document.getElementById("syncAge");
+    const syncNowBtn =
+      document.getElementById("syncNowBtn");
+
+    let latestState = null;
+
+    function sendCommand(action) {
+      const command = {
+        id: uid(),
+        action,
+        sentAt: Date.now()
+      };
+
+      lsWrite(COMMAND_KEY, command);
+
+      if (channel) {
+        try {
+          channel.postMessage({
+            type: "command",
+            command
+          });
+        } catch (_) {}
+      }
+    }
+
+    function setBadge(el, visible) {
+      el.textContent = visible ? "VISIBLE" : "HIDDEN";
+      el.classList.toggle("on", visible);
+      el.classList.toggle("off", !visible);
+    }
+
+    function readableCountdownState(value) {
+      if (value === "promo") return "PROMO LIVE";
+      return "COUNTDOWN";
+    }
+
+    function readableFundState(value) {
+      if (value === "ticker") return "TOP PLAYERS LIVE";
+      if (value === "build") return "BUILDING";
+      return "FUNDS RAISED";
+    }
+
+    function renderPanel() {
+      const now = Date.now();
+      const state = latestState || lsRead(STATE_KEY);
+
+      if (state) latestState = state;
+
+      const linked =
+        state &&
+        Number.isFinite(state.updatedAt) &&
+        now - state.updatedAt < 2500;
+
+      overlayLinkDot.className =
+        "status-dot " + (linked ? "green" : "red");
+
+      overlayLinkText.textContent =
+        linked ? "Overlay linked" : "Overlay offline";
+
+      if (!state) {
+        countdownNext.textContent = "--:--";
+        fundNext.textContent = "--:--";
+        nextSync.textContent = "--:--";
+        syncAge.textContent = "---";
+        return;
+      }
+
+      setBadge(
+        countdownVisibility,
+        state.countdown.visible
+      );
+
+      countdownNext.textContent =
+        state.countdown.eventComplete
+          ? "DONE"
+          : formatSpan(
+              state.countdown.nextAnimationAt - now,
+              false
+            );
+
+      countdownPanelState.textContent =
+        state.countdown.visible
+          ? readableCountdownState(
+              state.countdown.animation
+            )
+          : "HIDDEN";
+
+      countdownRunBtn.disabled =
+        !linked ||
+        !state.countdown.visible ||
+        state.countdown.animation !== "idle";
+
+      countdownStopBtn.disabled =
+        !linked ||
+        state.countdown.animation === "idle";
+
+      countdownVisibilityBtn.disabled = !linked;
+      countdownVisibilityBtn.textContent =
+        state.countdown.visible ? "Hide" : "Show";
+
+      setBadge(
+        fundVisibility,
+        state.fundraiser.visible
+      );
+
+      fundNext.textContent =
+        formatSpan(
+          state.fundraiser.nextAnimationAt - now,
+          false
+        );
+
+      fundPanelState.textContent =
+        state.fundraiser.visible
+          ? readableFundState(
+              state.fundraiser.animation
+            )
+          : "HIDDEN";
+
+      fundRunBtn.disabled =
+        !linked ||
+        !state.fundraiser.visible ||
+        state.fundraiser.animation !== "idle";
+
+      fundStopBtn.disabled =
+        !linked ||
+        state.fundraiser.animation === "idle";
+
+      fundVisibilityBtn.disabled = !linked;
+      fundVisibilityBtn.textContent =
+        state.fundraiser.visible ? "Hide" : "Show";
+
+      const sync = state.fundraiser.sync;
+
+      if (sync.ok === true) {
+        syncDot.className = "status-dot green";
+        syncTitle.textContent =
+          sync.inFlight
+            ? "Communicating · syncing"
+            : "Communicating";
+
+        syncSub.textContent =
+          `${new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          }).format(state.fundraiser.raised)} raised · ` +
+          `${state.fundraiser.playerCount} Top Players loaded`;
+
+        syncAgeLabel.textContent = "Last Good";
+        syncAge.textContent =
+          sync.lastSuccessAt
+            ? formatSpan(
+                now - sync.lastSuccessAt,
+                true
+              ) + " AGO"
+            : "---";
+
+      } else if (sync.ok === false) {
+        syncDot.className = "status-dot red";
+        syncTitle.textContent =
+          sync.inFlight
+            ? "Retrying"
+            : "Page not responding";
+
+        syncSub.textContent =
+          "Last valid fundraiser values are being retained on air.";
+
+        syncAgeLabel.textContent = "Offline For";
+        syncAge.textContent =
+          sync.offlineSinceAt
+            ? formatSpan(
+                now - sync.offlineSinceAt,
+                true
+              )
+            : "---";
+
+      } else {
+        syncDot.className = "status-dot";
+        syncTitle.textContent =
+          sync.inFlight ? "Checking page" : "Waiting for sync";
+        syncSub.textContent =
+          "Cached fundraiser values remain on air until a valid update is received.";
+        syncAgeLabel.textContent = "Last Good";
+        syncAge.textContent = "---";
+      }
+
+      nextSync.textContent =
+        sync.inFlight
+          ? "NOW"
+          : sync.nextSyncAt
+            ? formatSpan(
+                sync.nextSyncAt - now,
+                false
+              )
+            : "--:--";
+
+      syncNowBtn.disabled =
+        !linked || !!sync.inFlight;
+    }
+
+    countdownRunBtn.addEventListener(
+      "click",
+      () => sendCommand("countdown.run")
+    );
+
+    countdownStopBtn.addEventListener(
+      "click",
+      () => sendCommand("countdown.stop")
+    );
+
+    countdownVisibilityBtn.addEventListener(
+      "click",
+      () => sendCommand("countdown.toggle")
+    );
+
+    fundRunBtn.addEventListener(
+      "click",
+      () => sendCommand("fundraiser.runTicker")
+    );
+
+    fundStopBtn.addEventListener(
+      "click",
+      () => sendCommand("fundraiser.stop")
+    );
+
+    fundVisibilityBtn.addEventListener(
+      "click",
+      () => sendCommand("fundraiser.toggle")
+    );
+
+    syncNowBtn.addEventListener(
+      "click",
+      () => sendCommand("fundraiser.syncNow")
+    );
+
+    if (channel) {
+      channel.addEventListener("message", event => {
+        const msg = event.data;
+        if (msg && msg.type === "state") {
+          latestState = msg.state;
+          renderPanel();
+        }
+      });
+    }
+
+    setInterval(() => {
+      const stored = lsRead(STATE_KEY);
+
+      if (
+        stored &&
+        (
+          !latestState ||
+          stored.updatedAt >= latestState.updatedAt
+        )
+      ) {
+        latestState = stored;
+      }
+
+      renderPanel();
+    }, 250);
+
+    renderPanel();
+  }
+
+  if (PANEL_MODE) {
+    initPanel();
+  } else {
+    initProgram();
+  }
+})();
+</script>
+</body>
+</html>

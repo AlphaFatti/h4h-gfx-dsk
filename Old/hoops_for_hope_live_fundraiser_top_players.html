@@ -1,0 +1,820 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1920, initial-scale=1">
+<title>Hoops for Hope Live Fundraiser + Top Players</title>
+<style>
+  :root {
+    --navy: #071B33;
+    --white: #FFFFFF;
+    --muted: #B8C7D9;
+    --track: #29425E;
+    --candy-red: #E63946;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  .canvas {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  .fundraiser {
+    position: absolute;
+    left: 416px;
+    bottom: 48px;
+    width: 1456px;
+    height: 150px;
+    color: var(--white);
+    overflow: hidden;
+    background: transparent;
+  }
+
+  /* ---------- BROADCAST BUILD ---------- */
+
+  .red-build,
+  .blue-build {
+    position: absolute;
+    inset: 0;
+    transform: translateY(101%);
+    will-change: transform;
+  }
+
+  .red-build {
+    z-index: 1;
+    background: var(--candy-red);
+  }
+
+  .blue-build {
+    z-index: 2;
+    background: var(--navy);
+  }
+
+  .fundraiser.animate .red-build {
+    animation: redUp 360ms cubic-bezier(.18,.76,.22,1) both;
+  }
+
+  .fundraiser.animate .blue-build {
+    animation: blueUp 430ms cubic-bezier(.18,.76,.22,1) 210ms both;
+  }
+
+  @keyframes redUp {
+    from { transform: translateY(101%); }
+    to   { transform: translateY(0); }
+  }
+
+  @keyframes blueUp {
+    from { transform: translateY(101%); }
+    to   { transform: translateY(0); }
+  }
+
+  .accent-edge {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 5px;
+    z-index: 8;
+    background: var(--candy-red);
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+
+  .fundraiser.animate .accent-edge {
+    animation: edgeIn 280ms ease-out 565ms both;
+  }
+
+  @keyframes edgeIn {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+
+  /* ---------- FUNDRAISER STATE ---------- */
+
+  .stats-content {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    padding: 17px 23px 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(9px) scale(.992);
+  }
+
+  .fundraiser.animate .stats-content {
+    animation: contentPop 260ms cubic-bezier(.17,.84,.32,1.18) 680ms both;
+  }
+
+  @keyframes contentPop {
+    from {
+      opacity: 0;
+      transform: translateY(9px) scale(.992);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .stats-content.ticker-out {
+    animation: statsOut 230ms cubic-bezier(.55,.06,.68,.19) both !important;
+  }
+
+  .stats-content.return-in {
+    animation: statsReturn 260ms cubic-bezier(.17,.84,.32,1.18) both !important;
+  }
+
+  @keyframes statsOut {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+  }
+
+  @keyframes statsReturn {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .top {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 28px;
+    min-width: 0;
+  }
+
+  .block { min-width: 0; }
+  .goal { text-align: right; }
+
+  .label {
+    margin-bottom: 4px;
+    font-size: 12px;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .raised-value {
+    font-size: 45px;
+    line-height: .94;
+    font-weight: 900;
+    letter-spacing: -.025em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .goal-value {
+    font-size: 30px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: -.015em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .progress-track {
+    position: relative;
+    width: 100%;
+    height: 18px;
+    margin-top: 16px;
+    background: var(--track);
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    width: 0%;
+    height: 100%;
+    background: var(--candy-red);
+    transition: width 700ms cubic-bezier(.22,.8,.28,1);
+  }
+
+  /* ---------- TOP PLAYERS TICKER ---------- */
+
+  .ticker-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    display: flex;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-12px);
+  }
+
+  .ticker-layer.active {
+    animation: tickerLayerIn 260ms cubic-bezier(.17,.84,.32,1.12) both;
+  }
+
+  .ticker-layer.ticker-exit {
+    animation: tickerLayerOut 220ms ease-in both;
+  }
+
+  @keyframes tickerLayerIn {
+    from {
+      opacity: 0;
+      transform: translateY(-12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes tickerLayerOut {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+  }
+
+  .ticker-label {
+    position: relative;
+    z-index: 2;
+    flex: 0 0 240px;
+    height: 100%;
+    background: var(--candy-red);
+    display: flex;
+    align-items: center;
+    padding: 0 26px;
+    font-size: 26px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .035em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .ticker-viewport {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    background: var(--navy);
+  }
+
+  .ticker-track {
+    position: absolute;
+    left: 0;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    white-space: nowrap;
+    will-change: transform;
+  }
+
+  .ticker-item {
+    display: inline-flex;
+    align-items: baseline;
+    flex: 0 0 auto;
+    font-size: 28px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: -.01em;
+  }
+
+  .ticker-amount {
+    margin-left: 11px;
+    color: var(--muted);
+    font-size: 23px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ticker-separator {
+    display: inline-block;
+    flex: 0 0 auto;
+    width: 8px;
+    height: 8px;
+    margin: 0 28px;
+    background: var(--candy-red);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .red-build,
+    .blue-build,
+    .stats-content,
+    .ticker-layer,
+    .accent-edge {
+      animation: none !important;
+      transition: none !important;
+    }
+
+    .blue-build,
+    .stats-content,
+    .accent-edge {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .ticker-layer {
+      display: none !important;
+    }
+  }
+</style>
+</head>
+<body>
+<main class="canvas">
+  <section class="fundraiser" id="fundraiser" aria-label="Hoops for Hope fundraising progress">
+
+    <div class="red-build" aria-hidden="true"></div>
+    <div class="blue-build" aria-hidden="true"></div>
+
+    <div class="stats-content" id="statsContent">
+      <div class="top">
+        <div class="block">
+          <div class="label">Raised</div>
+          <div class="raised-value" id="raised">$26,939.98</div>
+        </div>
+
+        <div class="block goal">
+          <div class="label">2026 Goal</div>
+          <div class="goal-value" id="goal">$70,000</div>
+        </div>
+      </div>
+
+      <div class="progress-track">
+        <div class="progress-fill" id="fill"></div>
+      </div>
+    </div>
+
+    <div class="ticker-layer" id="tickerLayer" aria-label="Top Players">
+      <div class="ticker-label">Top Players:</div>
+      <div class="ticker-viewport" id="tickerViewport">
+        <div class="ticker-track" id="tickerTrack"></div>
+      </div>
+    </div>
+
+    <div class="accent-edge" aria-hidden="true"></div>
+  </section>
+</main>
+
+<script>
+(() => {
+  const SEED = {
+    raised: 26939.98,
+    goal: 70000.00,
+    players: [
+      { name: "Phil Arsenault", amount: 8650.00 },
+      { name: "Paul Watters", amount: 2115.31 },
+      { name: "Adam and Valerie Radl", amount: 1590.00 },
+      { name: "Elsie Concepción", amount: 1520.00 },
+      { name: "Joshua Dunlavey", amount: 1505.00 },
+      { name: "David Martin", amount: 1150.00 },
+      { name: "Brandon Moye", amount: 1100.00 },
+      { name: "Jason Reinhardt", amount: 1000.00 },
+      { name: "Jay Grasso", amount: 1000.00 },
+      { name: "Ben Elfner", amount: 775.00 },
+      { name: "Logan and Chris Hall", amount: 730.00 },
+      { name: "Kevin Shen", amount: 500.00 }
+    ]
+  };
+
+  const STORAGE_KEY = "hoops-for-hope-overlay-last-good-v2";
+  const UPDATE_INTERVAL_MS = 60 * 1000;
+  const REQUEST_TIMEOUT_MS = 9000;
+
+  const FIRST_TICKER_DELAY_MS = 15 * 1000;
+  const TICKER_INTERVAL_MS = 15 * 60 * 1000;
+  const TICKER_SPEED_PX_PER_SEC = 125;
+
+  const fundraiserEl = document.getElementById("fundraiser");
+  const statsContent = document.getElementById("statsContent");
+  const raisedEl = document.getElementById("raised");
+  const goalEl = document.getElementById("goal");
+  const fillEl = document.getElementById("fill");
+  const tickerLayer = document.getElementById("tickerLayer");
+  const tickerViewport = document.getElementById("tickerViewport");
+  const tickerTrack = document.getElementById("tickerTrack");
+
+  let inFlight = false;
+  let tickerRunning = false;
+  let tickerTimer = null;
+  let lastGood = loadSaved() || SEED;
+
+  const money = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+
+  const wholeMoney = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0
+  });
+
+  function loadSaved() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+
+      const value = JSON.parse(raw);
+
+      if (
+        Number.isFinite(value.raised) &&
+        Number.isFinite(value.goal) &&
+        value.raised >= 0 &&
+        value.goal >= 50000 &&
+        Array.isArray(value.players) &&
+        value.players.length > 0
+      ) {
+        return value;
+      }
+    } catch (_) {}
+
+    return null;
+  }
+
+  function saveGood(value) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+    } catch (_) {}
+  }
+
+  function renderStats(value) {
+    const pct = Math.max(0, Math.min(100, (value.raised / value.goal) * 100));
+
+    raisedEl.textContent = money.format(value.raised);
+    goalEl.textContent = wholeMoney.format(value.goal);
+
+    requestAnimationFrame(() => {
+      fillEl.style.width = pct.toFixed(4) + "%";
+    });
+  }
+
+  function renderTickerItems(players) {
+    tickerTrack.replaceChildren();
+
+    players.forEach((player, index) => {
+      const item = document.createElement("span");
+      item.className = "ticker-item";
+
+      const name = document.createElement("span");
+      name.textContent = player.name;
+
+      const amount = document.createElement("span");
+      amount.className = "ticker-amount";
+      amount.textContent = money.format(player.amount);
+
+      item.append(name, amount);
+      tickerTrack.appendChild(item);
+
+      if (index !== players.length - 1) {
+        const separator = document.createElement("span");
+        separator.className = "ticker-separator";
+        separator.setAttribute("aria-hidden", "true");
+        tickerTrack.appendChild(separator);
+      }
+    });
+  }
+
+  function playShowAnimation() {
+    fundraiserEl.classList.remove("animate");
+    void fundraiserEl.offsetWidth;
+    fundraiserEl.classList.add("animate");
+  }
+
+  function rawToText(raw) {
+    if (/<(?:html|body|div|section|h[1-6]|p|span)\b/i.test(raw)) {
+      try {
+        const doc = new DOMParser().parseFromString(raw, "text/html");
+        return doc.body ? doc.body.innerText : raw;
+      } catch (_) {}
+    }
+    return raw;
+  }
+
+  function parseOverall(text) {
+    const match = text.match(
+      /\$([\d,]+(?:\.\d{2})?)\s+of\s+\$([\d,]+(?:\.\d{2})?)\s+goal/i
+    );
+
+    if (!match) {
+      throw new Error("Overall fundraiser total was not found.");
+    }
+
+    const raised = Number(match[1].replace(/,/g, ""));
+    const goal = Number(match[2].replace(/,/g, ""));
+
+    if (
+      !Number.isFinite(raised) ||
+      !Number.isFinite(goal) ||
+      raised < 0 ||
+      goal < 50000
+    ) {
+      throw new Error("Overall fundraiser values were invalid.");
+    }
+
+    return { raised, goal };
+  }
+
+  function parseTopPlayers(raw) {
+    /*
+      Jina's fallback preserves player headings as "### Name".
+      This is the cleanest path when the site's direct request is CORS-blocked.
+    */
+    const markdownSectionMatch = raw.match(
+      /(?:^|\n)##\s*Top Players\s*([\s\S]*?)(?=(?:^|\n)##\s*Select a Player)/im
+    );
+
+    if (markdownSectionMatch) {
+      const section = markdownSectionMatch[1];
+      const players = [];
+      const re =
+        /(?:^|\n)###\s*([^\n]+)[\s\S]*?Raised\s+\$([\d,]+(?:\.\d{2})?)/gim;
+
+      let match;
+      while ((match = re.exec(section)) !== null) {
+        const name = match[1].trim();
+        const amount = Number(match[2].replace(/,/g, ""));
+        if (name && Number.isFinite(amount) && amount >= 0) {
+          players.push({ name, amount });
+        }
+      }
+
+      if (players.length > 0) return players;
+    }
+
+    /*
+      Direct HTML path: locate the Top Players H2 and read H3 player cards
+      until the next H2 ("Select a Player").
+    */
+    try {
+      const doc = new DOMParser().parseFromString(raw, "text/html");
+      const headings = [...doc.querySelectorAll("h2")];
+      const topHeading = headings.find(
+        h => h.textContent.trim().toLowerCase() === "top players"
+      );
+
+      if (topHeading) {
+        const allElements = [...doc.body.querySelectorAll("*")];
+        const startIndex = allElements.indexOf(topHeading);
+        let endIndex = allElements.length;
+
+        for (let i = startIndex + 1; i < allElements.length; i++) {
+          if (
+            allElements[i].tagName === "H2" &&
+            allElements[i].textContent.trim().toLowerCase() === "select a player"
+          ) {
+            endIndex = i;
+            break;
+          }
+        }
+
+        const playerHeadings = allElements
+          .slice(startIndex + 1, endIndex)
+          .filter(el => el.tagName === "H3");
+
+        const players = [];
+
+        for (const h3 of playerHeadings) {
+          const name = h3.textContent.trim();
+          let node = h3;
+          let amount = null;
+
+          for (let depth = 0; depth < 6 && node; depth++, node = node.parentElement) {
+            const cardText = node.textContent || "";
+            const amountMatch = cardText.match(
+              /Raised\s+\$([\d,]+(?:\.\d{2})?)/i
+            );
+            if (amountMatch) {
+              amount = Number(amountMatch[1].replace(/,/g, ""));
+              break;
+            }
+          }
+
+          if (name && Number.isFinite(amount) && amount >= 0) {
+            players.push({ name, amount });
+          }
+        }
+
+        if (players.length > 0) return players;
+      }
+    } catch (_) {}
+
+    /*
+      Last-resort plain-text parser. It keeps the previous good player list
+      if the site's markup changes enough that this can't be parsed safely.
+    */
+    const plain = rawToText(raw);
+    const sectionMatch = plain.match(
+      /Top Players([\s\S]*?)Select a Player/i
+    );
+
+    if (!sectionMatch) {
+      throw new Error("Top Players section was not found.");
+    }
+
+    throw new Error("Top Players section could not be parsed safely.");
+  }
+
+  async function fetchText(url) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+    try {
+      const response = await fetch(url, {
+        cache: "no-store",
+        signal: controller.signal
+      });
+
+      if (!response.ok) {
+        throw new Error("HTTP " + response.status);
+      }
+
+      return await response.text();
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  async function fetchSite() {
+    const cacheBust = Date.now();
+
+    try {
+      return await fetchText(
+        "https://playforapurpose.org/?overlay_refresh=" + cacheBust
+      );
+    } catch (_) {
+      return await fetchText(
+        "https://r.jina.ai/https://playforapurpose.org/?overlay_refresh=" +
+        cacheBust
+      );
+    }
+  }
+
+  async function update() {
+    if (inFlight) return;
+    inFlight = true;
+
+    try {
+      const raw = await fetchSite();
+      const plain = rawToText(raw);
+
+      let overall = null;
+      let players = null;
+
+      try {
+        overall = parseOverall(plain);
+      } catch (_) {}
+
+      try {
+        players = parseTopPlayers(raw);
+      } catch (_) {}
+
+      /*
+        Each dataset is independently fail-safe:
+        a successful overall update cannot wipe a cached player list,
+        and a successful player update cannot wipe a cached fundraiser total.
+      */
+      const next = {
+        raised: overall ? overall.raised : lastGood.raised,
+        goal: overall ? overall.goal : lastGood.goal,
+        players: players && players.length ? players : lastGood.players
+      };
+
+      lastGood = next;
+      saveGood(lastGood);
+      renderStats(lastGood);
+
+    } catch (_) {
+      /* Total request failure: keep every last-good value exactly as-is. */
+      renderStats(lastGood);
+    } finally {
+      inFlight = false;
+    }
+  }
+
+  function restoreStats() {
+    tickerLayer.classList.remove("active", "ticker-exit");
+    tickerTrack.style.transition = "none";
+    tickerTrack.style.transform = "translateX(0px)";
+    tickerTrack.replaceChildren();
+
+    statsContent.classList.remove("ticker-out", "return-in");
+    void statsContent.offsetWidth;
+    statsContent.classList.add("return-in");
+
+    window.setTimeout(() => {
+      statsContent.classList.remove("return-in");
+      tickerRunning = false;
+    }, 300);
+  }
+
+  function showTicker() {
+    if (tickerRunning) return;
+    if (!lastGood.players || lastGood.players.length === 0) return;
+
+    tickerRunning = true;
+
+    statsContent.classList.remove("return-in");
+    statsContent.classList.add("ticker-out");
+
+    window.setTimeout(() => {
+      renderTickerItems(lastGood.players);
+
+      tickerLayer.classList.remove("ticker-exit");
+      tickerLayer.classList.add("active");
+
+      tickerTrack.style.transition = "none";
+
+      /*
+        Start the leaderboard just outside the right edge of the viewport.
+        Measure the real rendered width so the speed remains consistent even
+        if names or the number of Top Players changes on the website.
+      */
+      const viewportWidth = tickerViewport.clientWidth;
+      const trackWidth = tickerTrack.scrollWidth;
+      const startX = viewportWidth + 28;
+      const endX = -trackWidth - 28;
+      const distance = startX - endX;
+      const durationMs = Math.max(
+        12000,
+        Math.round((distance / TICKER_SPEED_PX_PER_SEC) * 1000)
+      );
+
+      tickerTrack.style.transform = `translateX(${startX}px)`;
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          tickerTrack.style.transition =
+            `transform ${durationMs}ms linear`;
+          tickerTrack.style.transform = `translateX(${endX}px)`;
+        });
+      });
+
+      window.setTimeout(() => {
+        tickerLayer.classList.remove("active");
+        tickerLayer.classList.add("ticker-exit");
+
+        window.setTimeout(restoreStats, 230);
+      }, durationMs + 100);
+
+    }, 235);
+  }
+
+  function scheduleTicker() {
+    window.setTimeout(() => {
+      showTicker();
+
+      tickerTimer = window.setInterval(
+        showTicker,
+        TICKER_INTERVAL_MS
+      );
+    }, FIRST_TICKER_DELAY_MS);
+  }
+
+  renderStats(lastGood);
+  requestAnimationFrame(playShowAnimation);
+
+  update();
+  setInterval(update, UPDATE_INTERVAL_MS);
+  scheduleTicker();
+
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+      update();
+    }
+  });
+})();
+</script>
+</body>
+</html>

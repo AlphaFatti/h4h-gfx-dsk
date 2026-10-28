@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1920, initial-scale=1">
+<title>Hoops for Hope Countdown</title>
+<style>
+  :root {
+    --navy: #071B33;
+    --white: #FFFFFF;
+    --muted: #B8C7D9;
+    --candy-red: #E63946;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  .canvas {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+    background: transparent;
+    overflow: hidden;
+  }
+
+  .bug {
+    position: absolute;
+    left: 48px;
+    bottom: 48px;
+    width: 340px;
+    height: 150px;
+    background: var(--navy);
+    color: var(--white);
+    overflow: hidden;
+  }
+
+  .base-content {
+    position: absolute;
+    inset: 0;
+    padding: 12px 14px 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    z-index: 1;
+  }
+
+  .countdown-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .countdown {
+    font-size: 58px;
+    line-height: 0.92;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .labels {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 92%;
+    margin-top: 13px;
+    font-size: 10px;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .complete {
+    display: none;
+    font-size: 35px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  .complete span {
+    color: var(--candy-red);
+  }
+
+  .promo {
+    position: absolute;
+    inset: 0;
+    background: var(--candy-red);
+    color: var(--white);
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transform: translateX(-100%);
+    transition: transform 650ms cubic-bezier(.22,.8,.28,1);
+  }
+
+  .promo.show {
+    transform: translateX(0);
+  }
+
+  .promo-inner {
+    width: 100%;
+    padding: 10px 14px;
+    opacity: 0;
+    transform: translateX(-12px);
+    transition: opacity 220ms ease 300ms, transform 260ms ease 300ms;
+  }
+
+  .promo.show .promo-inner {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .promo-line-1 {
+    font-size: 31px;
+    line-height: 0.98;
+    font-weight: 900;
+    letter-spacing: 0.005em;
+    text-transform: uppercase;
+  }
+
+  .promo-line-2 {
+    margin-top: 10px;
+    font-size: 18px;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<main class="canvas" aria-label="Hoops for Hope countdown graphic">
+  <section class="bug">
+    <div class="base-content">
+      <div id="activeCountdown" class="countdown-wrap">
+        <div class="countdown" id="countdown">24:00:00</div>
+        <div class="labels" aria-hidden="true">
+          <div>Hours</div>
+          <div>Minutes</div>
+          <div>Seconds</div>
+        </div>
+      </div>
+
+      <div class="complete" id="completeMessage">
+        Event <span>Complete</span>
+      </div>
+    </div>
+
+    <div class="promo" id="promoBanner" aria-hidden="true">
+      <div class="promo-inner">
+        <div class="promo-line-1">Hoops For Hope 2026</div>
+        <div class="promo-line-2">Oct 9–Oct 10</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+  const TARGET = new Date("2026-10-10T07:00:00-04:00").getTime();
+
+  const countdownEl = document.getElementById("countdown");
+  const activeEl = document.getElementById("activeCountdown");
+  const completeEl = document.getElementById("completeMessage");
+  const promoBanner = document.getElementById("promoBanner");
+
+  const pad2 = (n) => String(n).padStart(2, "0");
+
+  function updateCountdown() {
+    const diff = TARGET - Date.now();
+
+    if (diff <= 0) {
+      countdownEl.textContent = "00:00:00";
+      activeEl.style.display = "none";
+      completeEl.style.display = "block";
+      return;
+    }
+
+    const totalSeconds = Math.floor(diff / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    countdownEl.textContent =
+      `${pad2(hours)}:${pad2(minutes)}:${pad2(seconds)}`;
+  }
+
+  function showPromo() {
+    promoBanner.classList.add("show");
+    window.setTimeout(() => {
+      promoBanner.classList.remove("show");
+    }, 7000);
+  }
+
+  function scheduleNextPromo() {
+    const minDelay = 10 * 60 * 1000;
+    const maxDelay = 15 * 60 * 1000;
+    const delay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
+
+    window.setTimeout(() => {
+      showPromo();
+      scheduleNextPromo();
+    }, delay);
+  }
+
+  updateCountdown();
+  window.setInterval(updateCountdown, 250);
+  window.setTimeout(showPromo, 1000);
+  scheduleNextPromo();
+})();
+</script>
+</body>
+</html>

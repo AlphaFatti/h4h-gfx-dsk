@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1920, initial-scale=1">
+<title>Hoops for Hope Live Fundraiser Bar</title>
+<style>
+  :root {
+    --navy: #071B33;
+    --white: #FFFFFF;
+    --muted: #B8C7D9;
+    --track: #29425E;
+    --candy-red: #E63946;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  .canvas {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  /* Same placement as the previous 1920x1080 version. */
+  .fundraiser {
+    position: absolute;
+    left: 416px;
+    bottom: 48px;
+    width: 1456px;
+    height: 150px;
+    color: var(--white);
+    overflow: hidden;
+    background: transparent;
+  }
+
+  /*
+    Broadcast-style build:
+      1. Candy red wipes upward through the full footprint.
+      2. Navy follows upward over the red.
+      3. Copy and progress elements punch in after the panel is built.
+  */
+  .red-build,
+  .blue-build {
+    position: absolute;
+    inset: 0;
+    transform: translateY(101%);
+    will-change: transform;
+  }
+
+  .red-build {
+    z-index: 1;
+    background: var(--candy-red);
+  }
+
+  .blue-build {
+    z-index: 2;
+    background: var(--navy);
+  }
+
+  .fundraiser.animate .red-build {
+    animation: redUp 360ms cubic-bezier(.18,.76,.22,1) both;
+  }
+
+  .fundraiser.animate .blue-build {
+    animation: blueUp 430ms cubic-bezier(.18,.76,.22,1) 210ms both;
+  }
+
+  @keyframes redUp {
+    from { transform: translateY(101%); }
+    to   { transform: translateY(0); }
+  }
+
+  @keyframes blueUp {
+    from { transform: translateY(101%); }
+    to   { transform: translateY(0); }
+  }
+
+  .content {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    padding: 17px 23px 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(9px) scale(.992);
+  }
+
+  .fundraiser.animate .content {
+    animation: contentPop 260ms cubic-bezier(.17,.84,.32,1.18) 680ms both;
+  }
+
+  @keyframes contentPop {
+    from {
+      opacity: 0;
+      transform: translateY(9px) scale(.992);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .top {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 28px;
+    min-width: 0;
+  }
+
+  .block {
+    min-width: 0;
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  .goal { text-align: right; }
+
+  .fundraiser.animate .raised-block {
+    animation: detailIn 230ms ease-out 730ms both;
+  }
+
+  .fundraiser.animate .goal-block {
+    animation: detailIn 230ms ease-out 790ms both;
+  }
+
+  @keyframes detailIn {
+    from {
+      opacity: 0;
+      transform: translateY(5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .label {
+    margin-bottom: 4px;
+    font-size: 12px;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .raised-value {
+    font-size: 45px;
+    line-height: .94;
+    font-weight: 900;
+    letter-spacing: -.025em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .goal-value {
+    font-size: 30px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: -.015em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .progress-track {
+    position: relative;
+    width: 100%;
+    height: 18px;
+    margin-top: 16px;
+    background: var(--track);
+    overflow: hidden;
+    opacity: 0;
+    transform: scaleX(.985);
+    transform-origin: center;
+  }
+
+  .fundraiser.animate .progress-track {
+    animation: trackIn 220ms ease-out 835ms both;
+  }
+
+  @keyframes trackIn {
+    from {
+      opacity: 0;
+      transform: scaleX(.985);
+    }
+    to {
+      opacity: 1;
+      transform: scaleX(1);
+    }
+  }
+
+  .progress-fill {
+    width: 0%;
+    height: 100%;
+    background: var(--candy-red);
+    transform-origin: left center;
+    transition: width 700ms cubic-bezier(.22,.8,.28,1);
+  }
+
+  /* A small red footer edge survives the blue wipe, giving the build a broadcast accent. */
+  .accent-edge {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 5px;
+    z-index: 4;
+    background: var(--candy-red);
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+
+  .fundraiser.animate .accent-edge {
+    animation: edgeIn 280ms ease-out 565ms both;
+  }
+
+  @keyframes edgeIn {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .red-build,
+    .blue-build,
+    .content,
+    .block,
+    .progress-track,
+    .accent-edge {
+      animation: none !important;
+      transition: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .blue-build { background: var(--navy); }
+  }
+</style>
+</head>
+<body>
+<main class="canvas">
+  <section class="fundraiser" id="fundraiser" aria-label="Hoops for Hope fundraising progress">
+    <div class="red-build" aria-hidden="true"></div>
+    <div class="blue-build" aria-hidden="true"></div>
+
+    <div class="content">
+      <div class="top">
+        <div class="block raised-block">
+          <div class="label">Raised</div>
+          <div class="raised-value" id="raised">$26,939.98</div>
+        </div>
+
+        <div class="block goal goal-block">
+          <div class="label">2026 Goal</div>
+          <div class="goal-value" id="goal">$70,000</div>
+        </div>
+      </div>
+
+      <div class="progress-track">
+        <div class="progress-fill" id="fill"></div>
+      </div>
+    </div>
+
+    <div class="accent-edge" aria-hidden="true"></div>
+  </section>
+</main>
+
+<script>
+(() => {
+  const SEED = { raised: 26939.98, goal: 70000.00 };
+  const STORAGE_KEY = "hoops-for-hope-fundraiser-last-good-v1";
+  const UPDATE_INTERVAL_MS = 60 * 1000;
+  const REQUEST_TIMEOUT_MS = 9000;
+
+  const fundraiserEl = document.getElementById("fundraiser");
+  const raisedEl = document.getElementById("raised");
+  const goalEl = document.getElementById("goal");
+  const fillEl = document.getElementById("fill");
+
+  let inFlight = false;
+  let lastGood = loadSaved() || SEED;
+
+  const money = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+
+  const wholeMoney = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0
+  });
+
+  function loadSaved() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+
+      const value = JSON.parse(raw);
+
+      if (
+        Number.isFinite(value.raised) &&
+        Number.isFinite(value.goal) &&
+        value.raised >= 0 &&
+        value.goal >= 50000
+      ) {
+        return value;
+      }
+    } catch (_) {}
+
+    return null;
+  }
+
+  function saveGood(value) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+    } catch (_) {}
+  }
+
+  function render(value) {
+    const pct = Math.max(0, Math.min(100, (value.raised / value.goal) * 100));
+
+    raisedEl.textContent = money.format(value.raised);
+    goalEl.textContent = wholeMoney.format(value.goal);
+
+    requestAnimationFrame(() => {
+      fillEl.style.width = pct.toFixed(4) + "%";
+    });
+  }
+
+  function playShowAnimation() {
+    fundraiserEl.classList.remove("animate");
+
+    // Force a reflow so the animation can be replayed cleanly.
+    void fundraiserEl.offsetWidth;
+
+    fundraiserEl.classList.add("animate");
+  }
+
+  function parseFundraiser(text) {
+    const matches = [...text.matchAll(
+      /\$([\d,]+(?:\.\d{2})?)\s+of\s+\$([\d,]+(?:\.\d{2})?)\s+goal/gi
+    )];
+
+    for (const match of matches) {
+      const raised = Number(match[1].replace(/,/g, ""));
+      const goal = Number(match[2].replace(/,/g, ""));
+
+      if (
+        Number.isFinite(raised) &&
+        Number.isFinite(goal) &&
+        raised >= 0 &&
+        goal >= 50000
+      ) {
+        return { raised, goal };
+      }
+    }
+
+    throw new Error("Overall fundraiser total was not found.");
+  }
+
+  async function fetchText(url) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+    try {
+      const response = await fetch(url, {
+        cache: "no-store",
+        signal: controller.signal
+      });
+
+      if (!response.ok) {
+        throw new Error("HTTP " + response.status);
+      }
+
+      return await response.text();
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  async function update() {
+    if (inFlight) return;
+    inFlight = true;
+
+    try {
+      const cacheBust = Date.now();
+      let text;
+
+      try {
+        text = await fetchText(
+          "https://playforapurpose.org/?overlay_refresh=" + cacheBust
+        );
+      } catch (_) {
+        text = await fetchText(
+          "https://r.jina.ai/https://playforapurpose.org/?overlay_refresh=" +
+          cacheBust
+        );
+      }
+
+      const next = parseFundraiser(text);
+
+      lastGood = next;
+      saveGood(lastGood);
+      render(lastGood);
+
+    } catch (_) {
+      /* Failed update: keep the last successfully displayed total. */
+      render(lastGood);
+    } finally {
+      inFlight = false;
+    }
+  }
+
+  /* Draw a valid cached/fallback total before the build animation starts. */
+  render(lastGood);
+
+  /* NFL/Fox-style entrance on initial browser-source load. */
+  requestAnimationFrame(playShowAnimation);
+
+  /* Live data refresh behavior is unchanged. */
+  update();
+  setInterval(update, UPDATE_INTERVAL_MS);
+
+  /*
+    Replay the animation if the browser actually transitions from hidden to visible.
+    In OBS, enabling "Refresh browser when scene becomes active" will also replay it
+    because the source reloads.
+  */
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+      playShowAnimation();
+      update();
+    }
+  });
+})();
+</script>
+</body>
+</html>

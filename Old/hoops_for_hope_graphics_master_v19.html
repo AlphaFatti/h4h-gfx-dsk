@@ -1,0 +1,6172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hoops for Hope Graphics Master</title>
+<style>
+  :root {
+    --navy: #071B33;
+    --navy-deep: #041323;
+    --panel: #08192B;
+    --panel-2: #0B223B;
+    --white: #FFFFFF;
+    --muted: #B8C7D9;
+    --track: #29425E;
+    --candy-red: #E63946;
+    --green: #31D07F;
+    --red: #FF4D5A;
+    --gray: #718399;
+  }
+
+  /* Alternate arena palette: Celtics green replaces the candy-red accent. */
+  body.theme-celtics {
+    --candy-red: #007A33;
+    --track: #1D4655;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    background: transparent;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  body.program-mode,
+  body.program-mode html {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+  }
+
+  button, input, select {
+    font: inherit;
+  }
+
+  /* ============================================================
+     PROGRAM VIEW — 1920×1080
+     ============================================================ */
+
+  #programView {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  body.panel-mode #programView { display: none; }
+
+  .program-graphic {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .program-graphic.graphic-hidden {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  /*
+    Show/Hide is handled by the graphic-specific broadcast builds below,
+    rather than a generic HTML fade/slide.
+  */
+
+  /* ---------- COUNTDOWN ---------- */
+
+  .countdown-bug {
+    position: absolute;
+    left: 48px;
+    bottom: 48px;
+    width: 340px;
+    height: 150px;
+    background: var(--navy);
+    color: var(--white);
+    overflow: hidden;
+  }
+
+  /* Broadcast visibility build for the countdown bug. */
+  .countdown-build-red,
+  .countdown-build-blue,
+  .countdown-exit-red {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .countdown-build-red {
+    z-index: 6;
+    background: var(--candy-red);
+    transform: translateY(101%);
+  }
+
+  .countdown-build-blue {
+    z-index: 7;
+    background: var(--navy);
+    transform: translateY(101%);
+  }
+
+  .countdown-bug.broadcast-show .countdown-build-red {
+    animation: countdownRedBuild 320ms cubic-bezier(.16,.84,.27,1) both;
+  }
+
+  .countdown-bug.broadcast-show .countdown-build-blue {
+    animation: countdownBlueBuild 390ms cubic-bezier(.18,.76,.22,1) 180ms both;
+  }
+
+  @keyframes countdownRedBuild {
+    0% { transform: translateY(101%); }
+    78% { transform: translateY(-4%); }
+    100% { transform: translateY(0); }
+  }
+
+  @keyframes countdownBlueBuild {
+    from { transform: translateY(101%); }
+    to { transform: translateY(0); }
+  }
+
+  .countdown-bug.broadcast-show .countdown-base {
+    animation: countdownContentBuild 290ms cubic-bezier(.16,.86,.29,1.22) 570ms both;
+  }
+
+  @keyframes countdownContentBuild {
+    from {
+      opacity: 0;
+      transform: translateY(9px) scale(.97);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .countdown-exit-red {
+    z-index: 30;
+    background: var(--candy-red);
+    transform: scaleY(0);
+    transform-origin: bottom center;
+  }
+
+  .countdown-bug.broadcast-hide .countdown-exit-red {
+    animation: countdownExitRed 290ms cubic-bezier(.16,.84,.27,1) both;
+  }
+
+  .countdown-bug.broadcast-hide {
+    animation: countdownExitDrop 260ms cubic-bezier(.55,.06,.68,.19) 260ms both;
+  }
+
+  @keyframes countdownExitRed {
+    0% { transform: scaleY(0); }
+    72% { transform: scaleY(1.05); }
+    100% { transform: scaleY(1); }
+  }
+
+  @keyframes countdownExitDrop {
+    from { transform: translateY(0); }
+    to { transform: translateY(112%); }
+  }
+
+  .countdown-base {
+    position: absolute;
+    inset: 0;
+    padding: 12px 14px 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    z-index: 10;
+  }
+
+  .countdown-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .countdown-value {
+    font-size: 58px;
+    line-height: .92;
+    font-weight: 900;
+    letter-spacing: -.04em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .countdown-labels {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 92%;
+    margin-top: 13px;
+    font-size: 10px;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .countdown-complete {
+    display: none;
+    font-size: 35px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  .countdown-complete span { color: var(--candy-red); }
+
+  .countdown-promo {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--candy-red);
+    color: var(--white);
+    text-align: center;
+    transform: translateX(-101%);
+    transition: transform 650ms cubic-bezier(.22,.8,.28,1);
+  }
+
+  .countdown-promo.show {
+    transform: translateX(0);
+  }
+
+  .countdown-promo-inner {
+    width: 100%;
+    padding: 10px 14px;
+    opacity: 0;
+    transform: translateX(-12px);
+    transition:
+      opacity 220ms ease 300ms,
+      transform 260ms ease 300ms;
+  }
+
+  .countdown-promo.show .countdown-promo-inner {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .countdown-promo-line-1 {
+    font-size: 31px;
+    line-height: .98;
+    font-weight: 900;
+    letter-spacing: .005em;
+    text-transform: uppercase;
+  }
+
+  .countdown-promo-line-2 {
+    margin-top: 10px;
+    font-size: 15px;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+  }
+
+  /* ============================================================
+     ACTION COMPACT LOWER THIRD
+     Ultra-thin, full-width scorebug for high-action moments.
+     ============================================================ */
+
+  .compact-lt {
+    position: absolute;
+    left: 50%;
+    bottom: 28px;
+    width: 780px;
+    height: 72px;
+    transform: translateX(-50%);
+    color: var(--white);
+    overflow: visible;
+    z-index: 120;
+    pointer-events: none;
+  }
+
+  #programView.compact-lt-mode > .countdown-bug,
+  #programView.compact-lt-mode > .fundraiser {
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+
+  #programView.brb-active > .compact-lt,
+  #programView.resume-lt-hidden > .compact-lt {
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+
+  /*
+    Standard -> Action Compact uses one clean drop instead of firing the
+    independent red takeovers on the timer and fundraiser at the same time.
+  */
+  #programView.standard-to-compact > .countdown-bug,
+  #programView.standard-to-compact > .fundraiser {
+    animation: standardLayoutOut 320ms cubic-bezier(.42,0,.72,.2) both !important;
+  }
+
+  @keyframes standardLayoutOut {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(120%);
+    }
+  }
+
+  .compact-lt-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 780px;
+    height: 42px;
+    overflow: hidden;
+    background: var(--navy);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, .20);
+  }
+
+  .compact-lt-bar.part-hidden {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .compact-lt-inner {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: 156px minmax(0, 1fr) 156px;
+    align-items: center;
+    padding: 0 16px;
+    z-index: 5;
+  }
+
+  .compact-lt-stat {
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .compact-lt-stat.right {
+    justify-content: flex-end;
+  }
+
+  .compact-lt-label {
+    font-size: 7px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .compact-lt-amount {
+    font-size: 16px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: -.018em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .compact-lt-progress {
+    position: relative;
+    height: 16px;
+    margin: 0 12px;
+    display: flex;
+    align-items: center;
+  }
+
+  .compact-lt-progress-track {
+    position: relative;
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, .18);
+    overflow: hidden;
+  }
+
+  .compact-lt-progress-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    background: var(--candy-red);
+    transform-origin: left center;
+  }
+
+  .compact-lt-countdown {
+    position: absolute;
+    left: 50%;
+    top: 42px;
+    width: 148px;
+    height: 26px;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--navy);
+    border-top: 2px solid var(--candy-red);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, .18);
+    overflow: hidden;
+  }
+
+  .compact-lt-countdown.part-hidden {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .compact-lt-count-value {
+    font-size: 18px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .015em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /*
+    Build surfaces sit BELOW the data. They expand from center, so once the
+    blue surface lands the content can reveal without the overlay covering
+    it for another half-second.
+  */
+  .compact-lt-build-red,
+  .compact-lt-build-blue {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    transform: scaleX(0);
+    transform-origin: center center;
+  }
+
+  .compact-lt-build-red {
+    z-index: 2;
+    background: var(--candy-red);
+  }
+
+  .compact-lt-build-blue {
+    z-index: 3;
+    background: var(--navy);
+  }
+
+  .compact-lt-exit-red {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 780px;
+    height: 42px;
+    z-index: 30;
+    pointer-events: none;
+    background: var(--candy-red);
+    transform: scaleX(0);
+    transform-origin: center center;
+  }
+
+  .compact-lt.broadcast-show .compact-lt-build-red {
+    animation: compactSurfaceExpand 250ms cubic-bezier(.16,.84,.27,1) both;
+  }
+
+  .compact-lt.broadcast-show .compact-lt-build-blue {
+    animation: compactSurfaceExpand 300ms cubic-bezier(.18,.76,.22,1) 125ms both;
+  }
+
+  .compact-lt.broadcast-show .compact-lt-inner {
+    animation: compactDataIn 240ms cubic-bezier(.16,.86,.29,1.08) 390ms both;
+  }
+
+  .compact-lt.broadcast-show .compact-lt-countdown {
+    animation: compactCountdownIn 250ms cubic-bezier(.16,.86,.29,1.08) 440ms both;
+  }
+
+  .compact-lt.broadcast-show .compact-lt-progress-fill {
+    animation: compactProgressChase 520ms cubic-bezier(.16,.84,.27,1) 455ms both;
+  }
+
+  .compact-lt.broadcast-hide .compact-lt-exit-red {
+    animation: compactSurfaceExpand 240ms cubic-bezier(.16,.84,.27,1) both;
+  }
+
+  .compact-lt.broadcast-hide {
+    animation: compactDropOut 230ms cubic-bezier(.55,.06,.68,.19) 235ms both;
+  }
+
+  @keyframes compactSurfaceExpand {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+
+  @keyframes compactDataIn {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /*
+    Animate clip/opacity only. Do NOT animate transform here: transform owns
+    the permanent translateX(-50%) that keeps the timer centered.
+  */
+  @keyframes compactCountdownIn {
+    from {
+      opacity: 0;
+      clip-path: inset(0 50% 0 50%);
+    }
+    to {
+      opacity: 1;
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  @keyframes compactProgressChase {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+
+  @keyframes compactDropOut {
+    from {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(-50%) translateY(90%);
+    }
+  }
+
+  /* ---------- FUNDRAISER ---------- */
+
+  .fundraiser {
+    position: absolute;
+    left: 416px;
+    bottom: 48px;
+    width: 1456px;
+    height: 150px;
+    color: var(--white);
+    overflow: hidden;
+    background: transparent;
+  }
+
+  .fund-red-build,
+  .fund-blue-build {
+    position: absolute;
+    inset: 0;
+    transform: translateY(101%);
+    will-change: transform;
+  }
+
+  .fund-red-build {
+    z-index: 1;
+    background: var(--candy-red);
+  }
+
+  .fund-blue-build {
+    z-index: 2;
+    background: var(--navy);
+  }
+
+  .fundraiser.booting .fund-red-build {
+    animation: fundRedUp 360ms cubic-bezier(.18,.76,.22,1) both;
+  }
+
+  .fundraiser.booting .fund-blue-build {
+    animation: fundBlueUp 430ms cubic-bezier(.18,.76,.22,1) 210ms both;
+  }
+
+  .fundraiser.built .fund-red-build,
+  .fundraiser.built .fund-blue-build {
+    transform: translateY(0);
+  }
+
+  @keyframes fundRedUp {
+    from { transform: translateY(101%); }
+    to { transform: translateY(0); }
+  }
+
+  @keyframes fundBlueUp {
+    from { transform: translateY(101%); }
+    to { transform: translateY(0); }
+  }
+
+  .fund-accent-edge {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 5px;
+    z-index: 10;
+    background: var(--candy-red);
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+
+  .fundraiser.booting .fund-accent-edge {
+    animation: fundEdgeIn 280ms ease-out 565ms both;
+  }
+
+  .fundraiser.built .fund-accent-edge {
+    transform: scaleX(1);
+  }
+
+  /* Broadcast visibility exit for the fundraiser. */
+  .fund-exit-red {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    pointer-events: none;
+    background: var(--candy-red);
+    transform: scaleY(0);
+    transform-origin: bottom center;
+  }
+
+  .fundraiser.broadcast-hide .fund-exit-red {
+    animation: fundVisibilityRedOut 310ms cubic-bezier(.16,.84,.27,1) both;
+  }
+
+  .fundraiser.broadcast-hide {
+    animation: fundVisibilityDrop 290ms cubic-bezier(.55,.06,.68,.19) 280ms both;
+  }
+
+  @keyframes fundVisibilityRedOut {
+    0% { transform: scaleY(0); }
+    72% { transform: scaleY(1.04); }
+    100% { transform: scaleY(1); }
+  }
+
+  @keyframes fundVisibilityDrop {
+    from { transform: translateY(0); }
+    to { transform: translateY(115%); }
+  }
+
+  @keyframes fundEdgeIn {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+
+  .fund-stats {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    padding: 17px 23px 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .fundraiser.booting .fund-stats {
+    animation: fundContentPop 260ms cubic-bezier(.17,.84,.32,1.18) 680ms both;
+  }
+
+  @keyframes fundContentPop {
+    from {
+      opacity: 0;
+      transform: translateY(9px) scale(.992);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .fund-stats.ticker-hidden {
+    opacity: 0;
+    transform: translateY(15px) scale(.994);
+    transition:
+      opacity 170ms cubic-bezier(.55,.06,.68,.19),
+      transform 220ms cubic-bezier(.55,.06,.68,.19);
+  }
+
+  .fund-stats.stats-return {
+    animation: fundStatsReturn 300ms cubic-bezier(.17,.84,.32,1.15) both;
+  }
+
+  @keyframes fundStatsReturn {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(.995);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .fund-top {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 28px;
+    min-width: 0;
+  }
+
+  .fund-block {
+    min-width: 0;
+    position: relative;
+  }
+
+  .fund-goal { text-align: right; }
+
+  .fund-block::after {
+    content: "";
+    position: absolute;
+    z-index: 6;
+    top: -5px;
+    bottom: -5px;
+    width: 58%;
+    background: var(--candy-red);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .fund-block:first-child::after {
+    left: -4px;
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+
+  .fund-goal::after {
+    right: -4px;
+    transform: scaleX(0);
+    transform-origin: right center;
+  }
+
+  .fundraiser.booting .fund-block:first-child::after {
+    animation: fundStatWipeLeft 390ms cubic-bezier(.18,.78,.24,1) 735ms both;
+  }
+
+  .fundraiser.booting .fund-goal::after {
+    animation: fundStatWipeRight 390ms cubic-bezier(.18,.78,.24,1) 825ms both;
+  }
+
+  @keyframes fundStatWipeLeft {
+    0% { opacity: 1; transform: scaleX(0); }
+    48% { opacity: 1; transform: scaleX(1); }
+    100% { opacity: 0; transform: scaleX(1); }
+  }
+
+  @keyframes fundStatWipeRight {
+    0% { opacity: 1; transform: scaleX(0); }
+    48% { opacity: 1; transform: scaleX(1); }
+    100% { opacity: 0; transform: scaleX(1); }
+  }
+
+  .fundraiser.booting .fund-block:first-child .fund-label,
+  .fundraiser.booting .fund-block:first-child .fund-raised {
+    animation: fundStatPunchLeft 310ms cubic-bezier(.16,.86,.29,1.22) 850ms both;
+  }
+
+  .fundraiser.booting .fund-goal .fund-label,
+  .fundraiser.booting .fund-goal .fund-goal-value {
+    animation: fundStatPunchRight 310ms cubic-bezier(.16,.86,.29,1.22) 940ms both;
+  }
+
+  @keyframes fundStatPunchLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-15px) translateY(3px) scale(1.045);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0) translateY(0) scale(1);
+    }
+  }
+
+  @keyframes fundStatPunchRight {
+    from {
+      opacity: 0;
+      transform: translateX(15px) translateY(3px) scale(1.045);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0) translateY(0) scale(1);
+    }
+  }
+
+  .fund-label {
+    margin-bottom: 4px;
+    font-size: 12px;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .fund-raised {
+    font-size: 45px;
+    line-height: .94;
+    font-weight: 900;
+    letter-spacing: -.025em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .fund-goal-value {
+    font-size: 30px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: -.015em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .fund-progress-track {
+    position: relative;
+    width: 100%;
+    height: 18px;
+    margin-top: 16px;
+    background: var(--track);
+    overflow: hidden;
+    transform-origin: left center;
+  }
+
+  .fundraiser.booting .fund-progress-track {
+    animation: fundTrackDraw 340ms cubic-bezier(.18,.78,.24,1) 1020ms both;
+  }
+
+  @keyframes fundTrackDraw {
+    from { opacity: 0; transform: scaleX(0); }
+    to { opacity: 1; transform: scaleX(1); }
+  }
+
+  .fund-progress-fill {
+    width: 0%;
+    height: 100%;
+    background: var(--candy-red);
+    transform-origin: left center;
+    transition: width 700ms cubic-bezier(.22,.8,.28,1);
+  }
+
+  .fundraiser.booting .fund-progress-fill {
+    animation: fundFillChase 620ms cubic-bezier(.20,.82,.24,1) 1240ms both;
+  }
+
+  @keyframes fundFillChase {
+    from { transform: scaleX(0); }
+    78% { transform: scaleX(1.035); }
+    to { transform: scaleX(1); }
+  }
+
+  .fund-progress-track::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    left: -8px;
+    background: var(--white);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .fundraiser.booting .fund-progress-track::after {
+    animation: fundProgressTick 520ms cubic-bezier(.18,.78,.24,1) 1110ms both;
+  }
+
+  @keyframes fundProgressTick {
+    0% { opacity: 0; left: -8px; }
+    18% { opacity: 1; }
+    82% { opacity: 1; left: calc(100% - 5px); }
+    100% { opacity: 0; left: calc(100% + 8px); }
+  }
+
+  /* Fundraiser ticker stinger */
+
+  .ticker-stinger {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    pointer-events: none;
+    visibility: hidden;
+    overflow: hidden;
+  }
+
+  .ticker-stinger.intro { visibility: visible; }
+
+  .stinger-red {
+    position: absolute;
+    inset: 0;
+    background: var(--candy-red);
+    transform: translateY(102%);
+  }
+
+  .ticker-stinger.intro .stinger-red {
+    animation: tickerRedPunch 280ms cubic-bezier(.16,.84,.27,1) both;
+  }
+
+  @keyframes tickerRedPunch {
+    0% { transform: translateY(102%); }
+    72% { transform: translateY(-5%); }
+    100% { transform: translateY(0); }
+  }
+
+  .stinger-blue {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 240px;
+    background: var(--navy);
+    transform: scaleX(0);
+    transform-origin: right center;
+  }
+
+  .ticker-stinger.intro .stinger-blue {
+    animation: tickerBlueSweep 310ms cubic-bezier(.18,.76,.22,1) 265ms both;
+  }
+
+  @keyframes tickerBlueSweep {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+
+  .stinger-white-tick {
+    position: absolute;
+    z-index: 2;
+    left: 240px;
+    top: 0;
+    width: 5px;
+    height: 100%;
+    background: var(--white);
+    transform: scaleY(0);
+    transform-origin: bottom center;
+  }
+
+  .ticker-stinger.intro .stinger-white-tick {
+    animation:
+      tickerTickUp 170ms ease-out 480ms both,
+      tickerTickAway 150ms ease-in 720ms forwards;
+  }
+
+  @keyframes tickerTickUp {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+  }
+
+  @keyframes tickerTickAway {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+
+  .ticker-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 7;
+    display: flex;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .ticker-layer.active { opacity: 1; }
+
+  .ticker-layer.ticker-exit {
+    animation: tickerLayerOut 180ms cubic-bezier(.55,.06,.68,.19) both;
+  }
+
+  @keyframes tickerLayerOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-8px); }
+  }
+
+  .ticker-label {
+    position: relative;
+    z-index: 2;
+    flex: 0 0 240px;
+    height: 100%;
+    background: var(--candy-red);
+    display: flex;
+    align-items: center;
+    padding: 0 26px;
+    font-size: 26px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .035em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .ticker-label-text { display: block; }
+
+  .ticker-layer.intro .ticker-label-text {
+    animation: tickerLabelPunch 250ms cubic-bezier(.14,.86,.30,1.28) both;
+  }
+
+  @keyframes tickerLabelPunch {
+    from {
+      opacity: 0;
+      transform: translateX(-18px) scale(1.08);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+  }
+
+  .ticker-viewport {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    background: var(--navy);
+  }
+
+  .ticker-track {
+    position: absolute;
+    left: 0;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    white-space: nowrap;
+    will-change: transform;
+  }
+
+  .ticker-item {
+    display: inline-flex;
+    align-items: baseline;
+    flex: 0 0 auto;
+    font-size: 28px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: -.01em;
+  }
+
+  .ticker-amount {
+    margin-left: 11px;
+    color: var(--muted);
+    font-size: 23px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ticker-separator {
+    display: inline-block;
+    flex: 0 0 auto;
+    width: 8px;
+    height: 8px;
+    margin: 0 28px;
+    background: var(--candy-red);
+  }
+
+  /* ============================================================
+     FULL-SCREEN BRB / HOLDING GRAPHICS
+     ============================================================ */
+
+  #programView.brb-active > .countdown-bug,
+  #programView.brb-active > .fundraiser,
+  #programView.resume-lt-hidden > .countdown-bug,
+  #programView.resume-lt-hidden > .fundraiser {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .brb-root {
+    position: absolute;
+    inset: 0;
+    z-index: 200;
+    pointer-events: none;
+  }
+
+  .brb-screen {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    visibility: hidden;
+    overflow: hidden;
+    color: var(--white);
+  }
+
+  .brb-screen.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .brb-full-screen {
+    background: var(--navy);
+  }
+
+  .brb-camera-screen {
+    background: transparent;
+  }
+
+  /* Camera layout uses four opaque panels, leaving a true transparent
+     1120×630 16:9 viewport at x70/y150 for an OBS camera source behind it. */
+  .brb-camera-panel {
+    position: absolute;
+    background: var(--navy);
+  }
+
+  .brb-camera-panel.top {
+    left: 0;
+    top: 0;
+    width: 1920px;
+    height: 150px;
+  }
+
+  .brb-camera-panel.left {
+    left: 0;
+    top: 150px;
+    width: 70px;
+    height: 630px;
+  }
+
+  .brb-camera-panel.right {
+    left: 1190px;
+    top: 150px;
+    width: 730px;
+    height: 630px;
+  }
+
+  .brb-camera-panel.bottom {
+    left: 0;
+    top: 780px;
+    width: 1920px;
+    height: 300px;
+  }
+
+  .brb-camera-frame {
+    position: absolute;
+    left: 70px;
+    top: 150px;
+    width: 1120px;
+    height: 630px;
+    border: 6px solid var(--candy-red);
+    z-index: 4;
+  }
+
+  /*
+    Transparent camera viewport.
+
+    The camera is expected to be composited as its own DSK underneath the
+    H4H GFX DSK. The graphics layer owns the visible frame/outline, while the
+    camera DSK fills the opening beneath it.
+  */
+  .brb-camera-shutter {
+    position: absolute;
+    left: 70px;
+    top: 150px;
+    width: 1120px;
+    height: 630px;
+    z-index: 3;
+    background: transparent;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .brb-camera-screen.dsk-shuttered .brb-camera-shutter {
+    opacity: 0;
+  }
+
+  .brb-brand {
+    position: absolute;
+    left: 70px;
+    top: 48px;
+    z-index: 5;
+  }
+
+  .brb-brand-kicker {
+    font-size: 14px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--candy-red);
+  }
+
+  .brb-brand-title {
+    margin-top: 7px;
+    font-size: 31px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .015em;
+    text-transform: uppercase;
+  }
+
+  .brb-live-mark {
+    position: absolute;
+    right: 70px;
+    top: 52px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    z-index: 5;
+    font-size: 13px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .brb-live-box {
+    width: 12px;
+    height: 12px;
+    background: var(--candy-red);
+    animation: brbLivePulse 2.4s steps(1, end) infinite;
+  }
+
+  @keyframes brbLivePulse {
+    0%, 62%, 100% { opacity: 1; }
+    63%, 82% { opacity: .25; }
+  }
+
+  .brb-camera-info {
+    position: absolute;
+    left: 1245px;
+    top: 205px;
+    width: 575px;
+    z-index: 5;
+  }
+
+  .brb-message-small-label,
+  .brb-count-label,
+  .brb-fund-label,
+  .brb-mini-label {
+    font-size: 11px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .brb-message-camera {
+    margin-top: 12px;
+    max-width: 550px;
+    font-size: 52px;
+    line-height: .95;
+    font-weight: 900;
+    letter-spacing: -.035em;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  .brb-camera-countdown-block {
+    margin-top: 55px;
+  }
+
+  /*
+    BRB countdowns are three independent fields rather than one HH:MM:SS
+    string. That keeps HOURS / MINUTES / SECONDS centered under the
+    correct digits even when the hours field grows to three digits.
+  */
+  .brb-time-grid {
+    width: 500px;
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr) 28px minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .brb-time-part {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .brb-time-number,
+  .brb-time-colon {
+    font-size: 62px;
+    line-height: .92;
+    font-weight: 900;
+    letter-spacing: -.045em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .brb-time-colon {
+    text-align: center;
+  }
+
+  .brb-time-unit {
+    margin-top: 12px;
+    font-size: 9px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .brb-standby {
+    margin-top: 58px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brb-standby-text {
+    font-size: 12px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+  }
+
+  .brb-standby-dots {
+    display: flex;
+    gap: 7px;
+  }
+
+  .brb-standby-dots span {
+    width: 8px;
+    height: 8px;
+    background: #36516D;
+    animation: brbDotCycle 1.8s steps(1, end) infinite;
+  }
+
+  .brb-standby-dots span:nth-child(2) { animation-delay: .3s; }
+  .brb-standby-dots span:nth-child(3) { animation-delay: .6s; }
+
+  @keyframes brbDotCycle {
+    0%, 32% { background: var(--candy-red); }
+    33%, 100% { background: #36516D; }
+  }
+
+  .brb-fundraiser {
+    position: absolute;
+    left: 70px;
+    right: 70px;
+    top: 820px;
+    height: 116px;
+    z-index: 5;
+  }
+
+  .brb-fund-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 30px;
+  }
+
+  .brb-fund-left,
+  .brb-fund-right {
+    display: flex;
+    align-items: baseline;
+    gap: 13px;
+  }
+
+  .brb-fund-value {
+    font-size: 39px;
+    line-height: .92;
+    font-weight: 900;
+    letter-spacing: -.03em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .brb-fund-goal {
+    font-size: 25px;
+    line-height: 1;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .brb-progress-track {
+    position: relative;
+    width: 100%;
+    height: 17px;
+    margin-top: 14px;
+    background: var(--track);
+    overflow: hidden;
+  }
+
+  .brb-progress-fill {
+    width: 0%;
+    height: 100%;
+    background: var(--candy-red);
+    transition: width 700ms cubic-bezier(.22,.8,.28,1);
+  }
+
+  .brb-ticker {
+    position: absolute;
+    left: 70px;
+    right: 70px;
+    bottom: 42px;
+    height: 68px;
+    z-index: 6;
+    display: flex;
+    background: #06192C;
+    overflow: hidden;
+  }
+
+  .brb-ticker-label {
+    flex: 0 0 228px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    background: var(--candy-red);
+    font-size: 20px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+  }
+
+  .brb-ticker-window {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  }
+
+  .brb-loop-track {
+    display: flex;
+    align-items: center;
+    width: max-content;
+    white-space: nowrap;
+    will-change: transform;
+    animation: brbTickerLoop 48s linear infinite;
+  }
+
+  .brb-screen:not(.active) .brb-loop-track,
+  .brb-screen:not(.active) .brb-hold-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes brbTickerLoop {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  .brb-loop-set {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+  }
+
+  .brb-player {
+    display: inline-flex;
+    align-items: baseline;
+    flex: 0 0 auto;
+    padding-left: 28px;
+    font-size: 22px;
+    line-height: 1;
+    font-weight: 900;
+  }
+
+  .brb-player-amount {
+    margin-left: 10px;
+    color: var(--muted);
+    font-size: 18px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .brb-player-sep {
+    width: 7px;
+    height: 7px;
+    margin-left: 28px;
+    background: var(--candy-red);
+    flex: 0 0 auto;
+  }
+
+  /* Full-graphics BRB composition */
+  .brb-full-kicker {
+    position: absolute;
+    left: 118px;
+    top: 150px;
+    z-index: 4;
+    font-size: 15px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--candy-red);
+  }
+
+  .brb-full-message {
+    position: absolute;
+    left: 118px;
+    top: 190px;
+    width: 900px;
+    z-index: 4;
+    font-size: 88px;
+    line-height: .88;
+    font-weight: 900;
+    letter-spacing: -.055em;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  .brb-full-red-rule {
+    position: absolute;
+    left: 82px;
+    top: 188px;
+    width: 12px;
+    height: 365px;
+    background: var(--candy-red);
+    z-index: 4;
+  }
+
+  .brb-full-count {
+    position: absolute;
+    right: 118px;
+    top: 190px;
+    width: 610px;
+    z-index: 4;
+    text-align: right;
+  }
+
+  .brb-full-count .brb-time-grid {
+    width: 100%;
+    margin-left: auto;
+    grid-template-columns: minmax(0, 1fr) 34px minmax(0, 1fr) 34px minmax(0, 1fr);
+  }
+
+  .brb-full-count .brb-time-number,
+  .brb-full-count .brb-time-colon {
+    font-size: 84px;
+  }
+
+  .brb-full-count .brb-time-unit {
+    font-size: 10px;
+    margin-top: 13px;
+  }
+
+  .brb-full-fundraiser {
+    left: 118px;
+    right: 118px;
+    top: 635px;
+    height: 150px;
+  }
+
+  .brb-full-fundraiser .brb-fund-value {
+    font-size: 49px;
+  }
+
+  .brb-full-fundraiser .brb-fund-goal {
+    font-size: 31px;
+  }
+
+  .brb-full-fundraiser .brb-progress-track {
+    height: 22px;
+    margin-top: 18px;
+  }
+
+  .brb-full-screen .brb-ticker {
+    left: 0;
+    right: 0;
+    bottom: 54px;
+    height: 82px;
+  }
+
+  .brb-full-screen .brb-ticker-label {
+    flex-basis: 260px;
+    padding-left: 44px;
+    font-size: 23px;
+  }
+
+  .brb-full-screen .brb-player {
+    font-size: 24px;
+  }
+
+  .brb-full-screen .brb-player-amount {
+    font-size: 19px;
+  }
+
+  /* Holding-pattern rails: only flat solid blocks, no gradients. */
+  .brb-hold-rail {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 10px;
+    overflow: hidden;
+    z-index: 12;
+    background: #041323;
+  }
+
+  .brb-hold-rail.top { top: 0; }
+  .brb-hold-rail.bottom { bottom: 0; }
+
+  .brb-hold-track {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 10px;
+    width: max-content;
+    display: flex;
+    align-items: stretch;
+    gap: 48px;
+    animation: brbHoldMove 18s linear infinite;
+    will-change: transform;
+  }
+
+  .brb-hold-rail.bottom .brb-hold-track {
+    animation-direction: reverse;
+    animation-duration: 22s;
+  }
+
+  .brb-hold-block {
+    width: 150px;
+    height: 10px;
+    background: var(--candy-red);
+    flex: 0 0 auto;
+  }
+
+  .brb-hold-block.short { width: 58px; }
+  .brb-hold-block.long { width: 270px; }
+
+  @keyframes brbHoldMove {
+    from { transform: translateX(-25%); }
+    to { transform: translateX(25%); }
+  }
+
+  /* Staggered content reveal after the full-screen transition clears. */
+  .brb-screen.reveal .brb-reveal {
+    animation: brbElementReveal 420ms cubic-bezier(.16,.86,.29,1.18) both;
+    animation-delay: var(--brb-delay, 0ms);
+  }
+
+  @keyframes brbElementReveal {
+    from {
+      opacity: 0;
+      transform: translateY(18px) scale(.985);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* Shared full-screen broadcast transition. This does not move the camera;
+     the camera remains stationary behind the transparent viewport. */
+  .brb-transition {
+    position: absolute;
+    inset: 0;
+    z-index: 500;
+    visibility: hidden;
+    overflow: hidden;
+  }
+
+  .brb-transition.active { visibility: visible; }
+
+  .brb-transition-red,
+  .brb-transition-blue {
+    position: absolute;
+    inset: 0;
+    will-change: transform;
+  }
+
+  .brb-transition-red { background: var(--candy-red); }
+  .brb-transition-blue { background: var(--navy); }
+
+  .brb-transition.show-in .brb-transition-red {
+    animation:
+      brbCoverFromLeft 300ms cubic-bezier(.16,.84,.27,1) both,
+      brbReleaseUp 330ms cubic-bezier(.18,.76,.22,1) 780ms forwards;
+  }
+
+  .brb-transition.show-in .brb-transition-blue {
+    animation:
+      brbCoverFromRight 350ms cubic-bezier(.18,.76,.22,1) 190ms both,
+      brbReleaseUp 350ms cubic-bezier(.18,.76,.22,1) 650ms forwards;
+  }
+
+  .brb-transition.hide-out .brb-transition-red {
+    animation:
+      brbCoverFromBottom 320ms cubic-bezier(.16,.84,.27,1) both,
+      brbReleaseDown 330ms cubic-bezier(.18,.76,.22,1) 730ms forwards;
+  }
+
+  .brb-transition.hide-out .brb-transition-blue {
+    animation:
+      brbCoverFromLeft 350ms cubic-bezier(.18,.76,.22,1) 180ms both,
+      brbReleaseDown 350ms cubic-bezier(.18,.76,.22,1) 610ms forwards;
+  }
+
+  @keyframes brbCoverFromLeft {
+    from { transform: translateX(-101%); }
+    to { transform: translateX(0); }
+  }
+
+  @keyframes brbCoverFromRight {
+    from { transform: translateX(101%); }
+    to { transform: translateX(0); }
+  }
+
+  @keyframes brbCoverFromBottom {
+    from { transform: translateY(101%); }
+    to { transform: translateY(0); }
+  }
+
+  @keyframes brbReleaseUp {
+    from { transform: translateY(0); }
+    to { transform: translateY(-101%); }
+  }
+
+  @keyframes brbReleaseDown {
+    from { transform: translateY(0); }
+    to { transform: translateY(101%); }
+  }
+
+  /* ============================================================
+     PANEL VIEW — responsive 3:4 OBS dock
+     ============================================================ */
+
+  #panelView { display: none; }
+
+  body.panel-mode {
+    width: 100%;
+    min-width: 300px;
+    height: 100%;
+    min-height: 420px;
+    overflow: auto;
+    background: var(--navy-deep);
+    color: var(--white);
+  }
+
+  body.panel-mode #panelView {
+    display: block;
+    min-height: 100vh;
+    background: var(--navy-deep);
+  }
+
+  .control-panel {
+    width: 100%;
+    max-width: 520px;
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .control-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 3px 2px 2px;
+  }
+
+  .control-kicker {
+    font-size: 10px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--candy-red);
+  }
+
+  .control-title {
+    margin-top: 5px;
+    font-size: 22px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: -.02em;
+    text-transform: uppercase;
+  }
+
+  .link-pill {
+    min-height: 30px;
+    padding: 0 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid #24405E;
+    background: var(--panel);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .status-dot {
+    width: 9px;
+    height: 9px;
+    flex: 0 0 9px;
+    background: var(--gray);
+  }
+
+  .status-dot.green { background: var(--green); }
+  .status-dot.red { background: var(--red); }
+
+  .control-card {
+    background: var(--panel);
+    border-left: 5px solid var(--candy-red);
+    padding: 14px;
+  }
+
+  .control-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .control-card-title {
+    font-size: 17px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+  }
+
+  .visibility-badge {
+    font-size: 9px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .visibility-badge.on { color: var(--green); }
+  .visibility-badge.off { color: var(--red); }
+
+  .next-animation {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 14px;
+    padding: 11px 12px;
+    background: var(--panel-2);
+    margin-bottom: 10px;
+  }
+
+  .next-label,
+  .mini-label {
+    font-size: 9px;
+    line-height: 1.1;
+    font-weight: 900;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .next-name {
+    margin-top: 5px;
+    font-size: 14px;
+    line-height: 1;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .next-time {
+    font-size: 29px;
+    line-height: .95;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -.04em;
+  }
+
+  .state-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 0 2px 11px;
+    font-size: 10px;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .state-value {
+    color: var(--white);
+    text-align: right;
+  }
+
+  .control-buttons {
+    display: grid;
+    grid-template-columns: 1.35fr .8fr .9fr;
+    gap: 7px;
+  }
+
+  .control-btn {
+    min-height: 42px;
+    border: 0;
+    padding: 8px 9px;
+    background: #12314F;
+    color: var(--white);
+    font-size: 10px;
+    line-height: 1.05;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .control-btn.primary { background: var(--candy-red); }
+  .control-btn.danger { background: #5A1821; }
+  .control-btn.visibility { background: #1B3956; }
+
+  .control-btn:disabled {
+    opacity: .34;
+    cursor: default;
+  }
+
+  .sync-status {
+    margin-top: 11px;
+    padding: 11px 12px;
+    background: var(--panel-2);
+  }
+
+  .sync-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sync-title {
+    font-size: 11px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+  }
+
+  .sync-sub {
+    margin-top: 7px;
+    font-size: 10px;
+    line-height: 1.3;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  .sync-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+    margin-top: 9px;
+  }
+
+  .sync-cell {
+    padding: 9px 10px;
+    background: #06182A;
+  }
+
+  .sync-value {
+    margin-top: 5px;
+    font-size: 16px;
+    line-height: 1;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sync-actions {
+    margin-top: 8px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .sync-now {
+    min-height: 34px;
+    padding: 0 12px;
+    border: 0;
+    background: #1B3956;
+    color: var(--white);
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .brb-message-editor {
+    margin-bottom: 10px;
+    padding: 10px 11px;
+    background: var(--panel-2);
+  }
+
+  .brb-message-editor label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 9px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .brb-message-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 7px;
+  }
+
+  .brb-message-input {
+    width: 100%;
+    min-width: 0;
+    height: 39px;
+    border: 1px solid #294761;
+    outline: none;
+    background: #06182A;
+    color: var(--white);
+    padding: 0 10px;
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .brb-message-input:focus {
+    border-color: var(--candy-red);
+  }
+
+  .brb-apply-btn {
+    min-width: 62px;
+    border: 0;
+    background: var(--candy-red);
+    color: var(--white);
+    padding: 0 11px;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .brb-control-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+  }
+
+  .brb-control-buttons .control-btn {
+    min-height: 44px;
+  }
+
+  .theme-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+  }
+
+  .theme-btn {
+    min-height: 42px;
+    border: 1px solid #294761;
+    background: #0A2036;
+    color: var(--white);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .theme-btn.active {
+    border-color: var(--candy-red);
+    background: var(--candy-red);
+  }
+
+  .dsk-status {
+    padding: 10px 11px;
+    background: var(--panel-2);
+    margin-bottom: 10px;
+  }
+
+  .dsk-status-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dsk-status-title {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+  }
+
+  .dsk-status-sub {
+    margin-top: 7px;
+    font-size: 9px;
+    line-height: 1.35;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  .dsk-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+  }
+
+  .dsk-field {
+    min-width: 0;
+  }
+
+  .dsk-field.wide {
+    grid-column: 1 / -1;
+  }
+
+  .dsk-field label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 8px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .11em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .dsk-input {
+    width: 100%;
+    min-width: 0;
+    height: 36px;
+    border: 1px solid #294761;
+    outline: none;
+    background: #06182A;
+    color: var(--white);
+    padding: 0 9px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .dsk-input:focus {
+    border-color: var(--candy-red);
+  }
+
+  .dsk-check-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 9px;
+    font-size: 9px;
+    font-weight: 800;
+    color: var(--muted);
+  }
+
+  .dsk-check-row input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--candy-red);
+  }
+
+  .dsk-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+    margin-top: 9px;
+  }
+
+  .dsk-action-btn {
+    min-height: 37px;
+    border: 0;
+    background: #1B3956;
+    color: var(--white);
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .dsk-action-btn.primary {
+    background: var(--candy-red);
+  }
+
+  .dsk-action-btn:disabled {
+    opacity: .34;
+    cursor: default;
+  }
+
+  .panel-note {
+    margin-top: auto;
+    padding: 4px 2px 0;
+    font-size: 9px;
+    line-height: 1.35;
+    font-weight: 700;
+    color: #8193A8;
+  }
+
+
+  /* ============================================================
+     COMPACT CONTROL DOCK
+     Optimized for a narrow OBS dock with minimal scrolling.
+     ============================================================ */
+
+  body.panel-mode {
+    min-height: 360px;
+  }
+
+  .control-panel {
+    max-width: 520px;
+    padding: 8px 9px 10px;
+    gap: 6px;
+  }
+
+  .control-header {
+    align-items: center;
+    gap: 8px;
+    padding: 0 1px 1px;
+  }
+
+  .control-kicker {
+    font-size: 7px;
+    letter-spacing: .14em;
+  }
+
+  .control-title {
+    margin-top: 3px;
+    font-size: 16px;
+  }
+
+  .link-pill {
+    min-height: 24px;
+    padding: 0 7px;
+    gap: 5px;
+    font-size: 7px;
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    flex-basis: 7px;
+  }
+
+  .control-card {
+    border-left-width: 3px;
+    padding: 8px 9px;
+  }
+
+  .control-card-head {
+    gap: 8px;
+    margin-bottom: 7px;
+  }
+
+  .control-card-title {
+    font-size: 12px;
+    letter-spacing: .015em;
+  }
+
+  .visibility-badge {
+    font-size: 7px;
+    letter-spacing: .09em;
+  }
+
+  .theme-selector {
+    gap: 5px;
+  }
+
+  .theme-btn {
+    min-height: 30px;
+    font-size: 8px;
+    letter-spacing: .055em;
+  }
+
+  .next-animation {
+    grid-template-columns: 1fr auto;
+    gap: 9px;
+    padding: 6px 8px;
+    margin-bottom: 6px;
+  }
+
+  .next-label,
+  .mini-label {
+    font-size: 7px;
+    letter-spacing: .1em;
+  }
+
+  .next-name {
+    margin-top: 3px;
+    font-size: 10px;
+  }
+
+  .next-time {
+    font-size: 20px;
+  }
+
+  .state-row {
+    gap: 7px;
+    margin: 0 1px 6px;
+    font-size: 8px;
+    letter-spacing: .065em;
+  }
+
+  .control-buttons {
+    gap: 5px;
+  }
+
+  .control-btn {
+    min-height: 31px;
+    padding: 5px 7px;
+    font-size: 8px;
+    letter-spacing: .055em;
+  }
+
+  .brb-message-editor {
+    margin-bottom: 6px;
+    padding: 6px 7px;
+  }
+
+  .brb-message-editor label {
+    margin-bottom: 4px;
+    font-size: 7px;
+    letter-spacing: .1em;
+  }
+
+  .brb-message-row {
+    gap: 5px;
+  }
+
+  .brb-message-input {
+    height: 30px;
+    padding: 0 8px;
+    font-size: 11px;
+  }
+
+  .brb-apply-btn {
+    min-width: 52px;
+    padding: 0 8px;
+    font-size: 7px;
+  }
+
+  .brb-control-buttons {
+    gap: 5px;
+  }
+
+  .brb-control-buttons .control-btn {
+    min-height: 32px;
+  }
+
+  .dsk-status {
+    padding: 6px 7px;
+    margin-bottom: 6px;
+  }
+
+  .dsk-status-head {
+    gap: 6px;
+  }
+
+  .dsk-status-title {
+    font-size: 9px;
+    letter-spacing: .065em;
+  }
+
+  .dsk-status-sub {
+    display: none;
+  }
+
+  .dsk-settings {
+    margin-top: 4px;
+    border-top: 1px solid #203A54;
+    padding-top: 4px;
+  }
+
+  .dsk-settings > summary {
+    list-style: none;
+    cursor: pointer;
+    min-height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 7px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    user-select: none;
+  }
+
+  .dsk-settings > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .dsk-settings > summary::after {
+    content: "+";
+    color: var(--white);
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .dsk-settings[open] > summary::after {
+    content: "–";
+  }
+
+  .dsk-settings-body {
+    padding-top: 5px;
+  }
+
+  .dsk-grid {
+    gap: 5px;
+  }
+
+  .dsk-field label {
+    margin-bottom: 3px;
+    font-size: 6px;
+  }
+
+  .dsk-input {
+    height: 29px;
+    padding: 0 7px;
+    font-size: 9px;
+  }
+
+  .dsk-check-row {
+    gap: 6px;
+    margin-top: 6px;
+    font-size: 7px;
+  }
+
+  .dsk-check-row input {
+    width: 13px;
+    height: 13px;
+  }
+
+  .dsk-actions {
+    gap: 5px;
+    margin-top: 6px;
+  }
+
+  .dsk-action-btn {
+    min-height: 29px;
+    font-size: 7px;
+  }
+
+  .sync-status {
+    margin-top: 6px;
+    padding: 6px 7px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "head next age"
+      "sub action action";
+    gap: 4px 8px;
+    align-items: center;
+  }
+
+  .sync-head {
+    grid-area: head;
+    gap: 5px;
+  }
+
+  .sync-title {
+    font-size: 8px;
+    letter-spacing: .06em;
+  }
+
+  .sync-sub {
+    grid-area: sub;
+    margin-top: 0;
+    font-size: 7px;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sync-grid {
+    display: contents;
+    margin-top: 0;
+  }
+
+  .sync-cell {
+    padding: 0;
+    background: transparent;
+    min-width: 52px;
+    text-align: right;
+  }
+
+  .sync-cell:first-child {
+    grid-area: next;
+  }
+
+  .sync-cell:nth-child(2) {
+    grid-area: age;
+  }
+
+  .sync-cell .mini-label {
+    font-size: 6px;
+  }
+
+  .sync-value {
+    margin-top: 2px;
+    font-size: 11px;
+  }
+
+  .sync-actions {
+    grid-area: action;
+    margin-top: 0;
+  }
+
+  .sync-now {
+    min-height: 24px;
+    padding: 0 8px;
+    font-size: 7px;
+  }
+
+  .panel-note {
+    padding-top: 2px;
+    font-size: 7px;
+    line-height: 1.2;
+  }
+
+  .lower-third-help {
+    display: none;
+  }
+
+  @media (max-width: 370px) {
+    .control-panel { padding: 6px; gap: 5px; }
+    .control-title { font-size: 15px; }
+    .next-time { font-size: 18px; }
+    .control-buttons { grid-template-columns: 1fr 1fr; }
+    .control-btn.visibility { grid-column: 1 / -1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .program-graphic,
+    .countdown-promo,
+    .countdown-promo-inner,
+    .countdown-build-red,
+    .countdown-build-blue,
+    .countdown-exit-red,
+    .fund-red-build,
+    .fund-blue-build,
+    .fund-exit-red,
+    .fund-stats,
+    .fund-accent-edge,
+    .fund-progress-track,
+    .fund-progress-fill,
+    .fund-label,
+    .fund-raised,
+    .fund-goal-value,
+    .ticker-layer,
+    .ticker-stinger,
+    .stinger-red,
+    .stinger-blue,
+    .stinger-white-tick,
+    .brb-transition-red,
+    .brb-transition-blue,
+    .brb-reveal,
+    .brb-loop-track,
+    .brb-hold-track,
+    .brb-live-box,
+    .brb-standby-dots span {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     PROGRAM / ON-AIR VIEW
+     ============================================================ -->
+<main id="programView" aria-label="Hoops for Hope on-air graphics">
+
+  <section class="countdown-bug program-graphic" id="countdownGraphic"
+           aria-label="Countdown until the end of Hoops for Hope">
+    <div class="countdown-build-red" aria-hidden="true"></div>
+    <div class="countdown-build-blue" aria-hidden="true"></div>
+    <div class="countdown-exit-red" aria-hidden="true"></div>
+
+    <div class="countdown-base">
+      <div class="countdown-wrap" id="countdownActive">
+        <div class="countdown-value" id="countdownValue">24:00:00</div>
+        <div class="countdown-labels" aria-hidden="true">
+          <div>Hours</div>
+          <div>Minutes</div>
+          <div>Seconds</div>
+        </div>
+      </div>
+
+      <div class="countdown-complete" id="countdownComplete">
+        Event <span>Complete</span>
+      </div>
+    </div>
+
+    <div class="countdown-promo" id="countdownPromo" aria-hidden="true">
+      <div class="countdown-promo-inner">
+        <div class="countdown-promo-line-1">Hoops For Hope 2026</div>
+        <div class="countdown-promo-line-2">Oct 9–Oct 10</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="fundraiser program-graphic booting" id="fundraiserGraphic"
+           aria-label="Hoops for Hope fundraising progress">
+
+    <div class="fund-red-build" aria-hidden="true"></div>
+    <div class="fund-blue-build" aria-hidden="true"></div>
+
+    <div class="fund-stats" id="fundStats">
+      <div class="fund-top">
+        <div class="fund-block">
+          <div class="fund-label">Raised</div>
+          <div class="fund-raised" id="fundRaised">$26,939.98</div>
+        </div>
+
+        <div class="fund-block fund-goal">
+          <div class="fund-label">2026 Goal</div>
+          <div class="fund-goal-value" id="fundGoal">$70,000</div>
+        </div>
+      </div>
+
+      <div class="fund-progress-track">
+        <div class="fund-progress-fill" id="fundFill"></div>
+      </div>
+    </div>
+
+    <div class="ticker-stinger" id="tickerStinger" aria-hidden="true">
+      <div class="stinger-red"></div>
+      <div class="stinger-blue"></div>
+      <div class="stinger-white-tick"></div>
+    </div>
+
+    <div class="ticker-layer" id="tickerLayer" aria-label="Top Players">
+      <div class="ticker-label">
+        <span class="ticker-label-text">Top Players:</span>
+      </div>
+      <div class="ticker-viewport" id="tickerViewport">
+        <div class="ticker-track" id="tickerTrack"></div>
+      </div>
+    </div>
+
+    <div class="fund-accent-edge" aria-hidden="true"></div>
+    <div class="fund-exit-red" aria-hidden="true"></div>
+  </section>
+
+
+  <section class="compact-lt program-graphic graphic-hidden" id="compactLowerThird"
+           aria-label="Compact fundraiser and countdown lower third">
+    <div class="compact-lt-bar" id="compactFundBar">
+      <div class="compact-lt-build-red" aria-hidden="true"></div>
+      <div class="compact-lt-build-blue" aria-hidden="true"></div>
+
+      <div class="compact-lt-inner">
+        <div class="compact-lt-stat">
+          <span class="compact-lt-label">Raised</span>
+          <span class="compact-lt-amount" id="compactRaised">$26,939.98</span>
+        </div>
+
+        <div class="compact-lt-progress" aria-label="Fundraising progress">
+          <div class="compact-lt-progress-track">
+            <div class="compact-lt-progress-fill" id="compactFill"></div>
+          </div>
+        </div>
+
+        <div class="compact-lt-stat right">
+          <span class="compact-lt-label">Goal</span>
+          <span class="compact-lt-amount" id="compactGoal">$70,000</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="compact-lt-countdown" id="compactCountdown">
+      <span class="compact-lt-count-value" id="compactCountdownValue">24:00:00</span>
+    </div>
+
+    <div class="compact-lt-exit-red" aria-hidden="true"></div>
+  </section>
+
+  <div class="brb-root" id="brbRoot" aria-label="Be right back graphics">
+
+    <!-- Camera-window BRB. The center-left viewport is intentionally transparent. -->
+    <section class="brb-screen brb-camera-screen" id="brbCameraScreen">
+      <div class="brb-camera-panel top"></div>
+      <div class="brb-camera-panel left"></div>
+      <div class="brb-camera-panel right"></div>
+      <div class="brb-camera-panel bottom"></div>
+      <div class="brb-camera-shutter" id="brbCameraShutter" aria-hidden="true"></div>
+      <div class="brb-camera-frame" aria-hidden="true"></div>
+
+      <div class="brb-brand brb-reveal" style="--brb-delay:40ms">
+        <div class="brb-brand-kicker">Live Event</div>
+        <div class="brb-brand-title">Hoops For Hope 2026</div>
+      </div>
+
+      <div class="brb-camera-info">
+        <div class="brb-message-small-label brb-reveal" style="--brb-delay:140ms">Please Stand By</div>
+        <div class="brb-message-camera brb-reveal brb-message-target" id="brbCamMessage" style="--brb-delay:190ms">We'll Be Right Back</div>
+
+        <div class="brb-camera-countdown-block brb-reveal" style="--brb-delay:260ms">
+          <div class="brb-count-label">Event Countdown</div>
+          <div class="brb-time-grid" id="brbCamCountdown">
+            <div class="brb-time-part">
+              <span class="brb-time-number" id="brbCamHours">24</span>
+              <span class="brb-time-unit">Hours</span>
+            </div>
+            <div class="brb-time-colon">:</div>
+            <div class="brb-time-part">
+              <span class="brb-time-number" id="brbCamMinutes">00</span>
+              <span class="brb-time-unit">Minutes</span>
+            </div>
+            <div class="brb-time-colon">:</div>
+            <div class="brb-time-part">
+              <span class="brb-time-number" id="brbCamSeconds">00</span>
+              <span class="brb-time-unit">Seconds</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="brb-standby brb-reveal" style="--brb-delay:330ms">
+          <span class="brb-standby-text">Stand By</span>
+          <span class="brb-standby-dots"><span></span><span></span><span></span></span>
+        </div>
+      </div>
+
+      <div class="brb-fundraiser brb-reveal" style="--brb-delay:360ms">
+        <div class="brb-fund-head">
+          <div class="brb-fund-left">
+            <span class="brb-fund-label">Raised</span>
+            <span class="brb-fund-value" id="brbCamRaised">$26,939.98</span>
+          </div>
+          <div class="brb-fund-right">
+            <span class="brb-fund-label">2026 Goal</span>
+            <span class="brb-fund-goal" id="brbCamGoal">$70,000</span>
+          </div>
+        </div>
+        <div class="brb-progress-track"><div class="brb-progress-fill" id="brbCamFill"></div></div>
+      </div>
+
+      <div class="brb-ticker brb-reveal" style="--brb-delay:420ms">
+        <div class="brb-ticker-label">Top Players</div>
+        <div class="brb-ticker-window">
+          <div class="brb-loop-track" id="brbCamTickerTrack">
+            <div class="brb-loop-set" id="brbCamTickerA"></div>
+            <div class="brb-loop-set" id="brbCamTickerB"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="brb-hold-rail top"><div class="brb-hold-track"></div></div>
+      <div class="brb-hold-rail bottom"><div class="brb-hold-track"></div></div>
+    </section>
+
+    <!-- Full-screen graphic BRB. -->
+    <section class="brb-screen brb-full-screen" id="brbFullScreen">
+      <div class="brb-full-red-rule brb-reveal" style="--brb-delay:60ms"></div>
+      <div class="brb-full-kicker brb-reveal" style="--brb-delay:90ms">Hoops For Hope 2026 · Live Event</div>
+      <div class="brb-full-message brb-reveal brb-message-target" id="brbFullMessage" style="--brb-delay:150ms">We'll Be Right Back</div>
+
+      <div class="brb-full-count brb-reveal" style="--brb-delay:230ms">
+        <div class="brb-count-label">Event Countdown</div>
+        <div class="brb-time-grid" id="brbFullCountdown">
+          <div class="brb-time-part">
+            <span class="brb-time-number" id="brbFullHours">24</span>
+            <span class="brb-time-unit">Hours</span>
+          </div>
+          <div class="brb-time-colon">:</div>
+          <div class="brb-time-part">
+            <span class="brb-time-number" id="brbFullMinutes">00</span>
+            <span class="brb-time-unit">Minutes</span>
+          </div>
+          <div class="brb-time-colon">:</div>
+          <div class="brb-time-part">
+            <span class="brb-time-number" id="brbFullSeconds">00</span>
+            <span class="brb-time-unit">Seconds</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="brb-fundraiser brb-full-fundraiser brb-reveal" style="--brb-delay:320ms">
+        <div class="brb-fund-head">
+          <div class="brb-fund-left">
+            <span class="brb-fund-label">Raised</span>
+            <span class="brb-fund-value" id="brbFullRaised">$26,939.98</span>
+          </div>
+          <div class="brb-fund-right">
+            <span class="brb-fund-label">2026 Goal</span>
+            <span class="brb-fund-goal" id="brbFullGoal">$70,000</span>
+          </div>
+        </div>
+        <div class="brb-progress-track"><div class="brb-progress-fill" id="brbFullFill"></div></div>
+      </div>
+
+      <div class="brb-ticker brb-reveal" style="--brb-delay:420ms">
+        <div class="brb-ticker-label">Top Players</div>
+        <div class="brb-ticker-window">
+          <div class="brb-loop-track" id="brbFullTickerTrack">
+            <div class="brb-loop-set" id="brbFullTickerA"></div>
+            <div class="brb-loop-set" id="brbFullTickerB"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="brb-hold-rail top"><div class="brb-hold-track"></div></div>
+      <div class="brb-hold-rail bottom"><div class="brb-hold-track"></div></div>
+    </section>
+
+    <div class="brb-transition" id="brbTransition" aria-hidden="true">
+      <div class="brb-transition-red"></div>
+      <div class="brb-transition-blue"></div>
+    </div>
+  </div>
+</main>
+
+<!-- ============================================================
+     OBS CONTROL DOCK VIEW
+     Load this SAME file with #panel appended.
+     ============================================================ -->
+<main id="panelView" aria-label="Hoops for Hope graphics control panel">
+  <div class="control-panel">
+    <header class="control-header">
+      <div>
+        <div class="control-kicker">Hoops for Hope 2026</div>
+        <div class="control-title">GFX Control</div>
+      </div>
+      <div class="link-pill">
+        <span class="status-dot" id="overlayLinkDot"></span>
+        <span id="overlayLinkText">Waiting for overlay</span>
+      </div>
+    </header>
+
+    <section class="control-card">
+      <div class="control-card-head">
+        <div class="control-card-title">Color Scheme</div>
+        <div class="visibility-badge" id="themeStatus">NAVY + RED</div>
+      </div>
+
+      <div class="theme-selector">
+        <button class="theme-btn active" id="themeRedBtn" type="button">Navy + Candy Red</button>
+        <button class="theme-btn" id="themeCelticsBtn" type="button">Navy + Celtics Green</button>
+      </div>
+    </section>
+
+    <section class="control-card">
+      <div class="control-card-head">
+        <div class="control-card-title">Lower Third Layout</div>
+        <div class="visibility-badge" id="lowerThirdStatus">STANDARD</div>
+      </div>
+
+      <div class="theme-selector">
+        <button class="theme-btn active" id="lowerThirdStandardBtn" type="button">Standard</button>
+        <button class="theme-btn" id="lowerThirdCompactBtn" type="button">Action Compact</button>
+      </div>
+
+      <div class="panel-note lower-third-help">
+        Action Compact is a slim centered fundraiser strip for high-action moments. You can change this while BRB is live; the selected layout will build on air when BRB clears.
+      </div>
+    </section>
+
+    <section class="control-card">
+      <div class="control-card-head">
+        <div class="control-card-title">BRB / Holding</div>
+        <div class="visibility-badge" id="brbVisibility">HIDDEN</div>
+      </div>
+
+      <div class="brb-message-editor">
+        <label for="brbMessageInput">On-air BRB message</label>
+        <div class="brb-message-row">
+          <input class="brb-message-input" id="brbMessageInput" maxlength="48" value="We'll Be Right Back">
+          <button class="brb-apply-btn" id="brbApplyBtn" type="button">Apply</button>
+        </div>
+      </div>
+
+      <div class="state-row">
+        <span>Current layout</span>
+        <span class="state-value" id="brbPanelState">HIDDEN</span>
+      </div>
+
+      <div class="brb-control-buttons">
+        <button class="control-btn primary" id="brbCameraBtn" type="button">Camera BRB</button>
+        <button class="control-btn primary" id="brbFullBtn" type="button">Full Graphic</button>
+        <button class="control-btn danger" id="brbHideBtn" type="button">Hide BRB</button>
+        <button class="control-btn visibility" id="brbCutBtn" type="button">Cut Transition</button>
+      </div>
+    </section>
+
+    <section class="control-card">
+      <div class="control-card-head">
+        <div class="control-card-title">Camera DSK</div>
+        <div class="visibility-badge" id="dskBadge">OFFLINE</div>
+      </div>
+
+      <div class="dsk-status">
+        <div class="dsk-status-head">
+          <span class="status-dot" id="dskDot"></span>
+          <span class="dsk-status-title" id="dskTitle">Not connected</span>
+        </div>
+        <div class="dsk-status-sub" id="dskSub">
+          Uses the Downstream Keyer plugin through OBS WebSocket. The camera scene is automatically cropped-to-fill inside the BRB frame without covering its outline. This assumes the H4H GFX package remains the downstream graphic layer above the camera DSK.
+        </div>
+      </div>
+
+      <details class="dsk-settings">
+        <summary>DSK Setup / Advanced</summary>
+        <div class="dsk-settings-body">
+          <div class="dsk-grid">
+            <div class="dsk-field wide">
+              <label for="dskWsUrl">OBS WebSocket URL</label>
+              <input class="dsk-input" id="dskWsUrl" value="ws://127.0.0.1:4455">
+            </div>
+
+            <div class="dsk-field wide">
+              <label for="dskWsPassword">OBS WebSocket Password</label>
+              <input class="dsk-input" id="dskWsPassword" type="password" placeholder="OBS WebSocket password">
+            </div>
+
+            <div class="dsk-field">
+              <label for="dskKeyerName">DSK Name</label>
+              <input class="dsk-input" id="dskKeyerName" value="DSK 1">
+            </div>
+
+            <div class="dsk-field">
+              <label for="dskSceneName">DSK Camera Scene</label>
+              <input class="dsk-input" id="dskSceneName" value="H4H BRB Camera">
+            </div>
+
+            <div class="dsk-field wide">
+              <label for="dskCameraSource">Camera Source Name</label>
+              <input class="dsk-input" id="dskCameraSource" placeholder="Fly-on-the-wall camera source">
+            </div>
+          </div>
+
+          <label class="dsk-check-row">
+            <input id="dskAutoEnable" type="checkbox" checked>
+            <span>Automatically key camera during Camera BRB</span>
+          </label>
+
+          <div class="dsk-actions">
+            <button class="dsk-action-btn primary" id="dskSavePrepareBtn" type="button">Save + Prepare</button>
+            <button class="dsk-action-btn" id="dskReleaseBtn" type="button">Release DSK</button>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <section class="control-card">
+      <div class="control-card-head">
+        <div class="control-card-title">Countdown</div>
+        <div class="visibility-badge" id="countdownVisibility">---</div>
+      </div>
+
+      <div class="next-animation">
+        <div>
+          <div class="next-label">Next automatic animation</div>
+          <div class="next-name">Event ID Takeover</div>
+        </div>
+        <div class="next-time" id="countdownNext">--:--</div>
+      </div>
+
+      <div class="state-row">
+        <span>Current state</span>
+        <span class="state-value" id="countdownPanelState">---</span>
+      </div>
+
+      <div class="control-buttons">
+        <button class="control-btn primary" id="countdownRunBtn" type="button">Run Promo</button>
+        <button class="control-btn danger" id="countdownStopBtn" type="button">Stop</button>
+        <button class="control-btn visibility" id="countdownVisibilityBtn" type="button">Hide</button>
+      </div>
+    </section>
+
+    <section class="control-card">
+      <div class="control-card-head">
+        <div class="control-card-title">Fundraiser</div>
+        <div class="visibility-badge" id="fundVisibility">---</div>
+      </div>
+
+      <div class="next-animation">
+        <div>
+          <div class="next-label">Next automatic animation</div>
+          <div class="next-name">Top Players Ticker</div>
+        </div>
+        <div class="next-time" id="fundNext">--:--</div>
+      </div>
+
+      <div class="state-row">
+        <span>Current state</span>
+        <span class="state-value" id="fundPanelState">---</span>
+      </div>
+
+      <div class="control-buttons">
+        <button class="control-btn primary" id="fundRunBtn" type="button">Run Top Players</button>
+        <button class="control-btn danger" id="fundStopBtn" type="button">Stop</button>
+        <button class="control-btn visibility" id="fundVisibilityBtn" type="button">Hide</button>
+      </div>
+
+      <div class="sync-status">
+        <div class="sync-head">
+          <span class="status-dot" id="syncDot"></span>
+          <span class="sync-title" id="syncTitle">Waiting for sync</span>
+        </div>
+        <div class="sync-sub" id="syncSub">
+          Cached fundraiser values remain on air until a valid update is received.
+        </div>
+
+        <div class="sync-grid">
+          <div class="sync-cell">
+            <div class="mini-label">Next Sync</div>
+            <div class="sync-value" id="nextSync">--:--</div>
+          </div>
+          <div class="sync-cell">
+            <div class="mini-label" id="syncAgeLabel">Last Good</div>
+            <div class="sync-value" id="syncAge">---</div>
+          </div>
+        </div>
+
+        <div class="sync-actions">
+          <button class="sync-now" id="syncNowBtn" type="button">Sync Now</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="panel-note">
+      Keep the program Browser Source loaded continuously for schedules,
+      live data, and dock control.
+    </div>
+  </div>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  const PANEL_MODE =
+    window.location.hash.toLowerCase() === "#panel" ||
+    new URLSearchParams(window.location.search).get("panel") === "1";
+
+  document.body.classList.add(PANEL_MODE ? "panel-mode" : "program-mode");
+
+  const CHANNEL_NAME = "h4h-gfx-master-v2";
+  const STATE_KEY = "h4h-gfx-master-state-v2";
+  const COMMAND_KEY = "h4h-gfx-master-command-v2";
+  const PREF_KEY = "h4h-gfx-master-prefs-v1";
+  const DATA_KEY = "h4h-gfx-master-data-v1";
+
+  function createChannel() {
+    try {
+      return ("BroadcastChannel" in window)
+        ? new BroadcastChannel(CHANNEL_NAME)
+        : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function lsRead(key) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function lsWrite(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function uid() {
+    return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  }
+
+  function formatSpan(ms, includeHours = true) {
+    if (!Number.isFinite(ms)) return "---";
+    if (ms <= 0) return "NOW";
+
+    const total = Math.ceil(ms / 1000);
+    const hours = Math.floor(total / 3600);
+    const minutes = Math.floor((total % 3600) / 60);
+    const seconds = total % 60;
+
+    if (includeHours && hours > 0) {
+      return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    }
+
+    const totalMinutes = Math.floor(total / 60);
+    return `${String(totalMinutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  }
+
+  /* ============================================================
+     PROGRAM CONTROLLER
+     ============================================================ */
+
+  function initProgram() {
+    const channel = createChannel();
+
+    const EVENT_TARGET =
+      new Date("2026-10-10T07:00:00-04:00").getTime();
+
+    const COUNTDOWN_PROMO_DURATION = 7000;
+    const COUNTDOWN_INITIAL_DELAY = 1200;
+    const COUNTDOWN_MIN_INTERVAL = 10 * 60 * 1000;
+    const COUNTDOWN_MAX_INTERVAL = 15 * 60 * 1000;
+
+    const TICKER_INITIAL_DELAY = 15 * 1000;
+    const TICKER_INTERVAL = 15 * 60 * 1000;
+    const TICKER_SPEED_PX_PER_SEC = 125;
+
+    /*
+      From the hand-timed reference clip:
+      ticker transition begins first, then the countdown promo begins
+      about 1.4 seconds later, after TOP PLAYERS has resolved on screen.
+    */
+    const TICKER_COUNTDOWN_PROMO_DELAY = 1400;
+
+    const SYNC_INTERVAL = 15 * 1000;
+    const REQUEST_TIMEOUT = 9000;
+
+    const SEED = {
+      raised: 26939.98,
+      goal: 70000.00,
+      players: [
+        { name: "Phil Arsenault", amount: 8650.00 },
+        { name: "Paul Watters", amount: 2115.31 },
+        { name: "Adam and Valerie Radl", amount: 1590.00 },
+        { name: "Elsie Concepción", amount: 1520.00 },
+        { name: "Joshua Dunlavey", amount: 1505.00 },
+        { name: "David Martin", amount: 1150.00 },
+        { name: "Brandon Moye", amount: 1100.00 },
+        { name: "Jason Reinhardt", amount: 1000.00 },
+        { name: "Jay Grasso", amount: 1000.00 },
+        { name: "Ben Elfner", amount: 775.00 },
+        { name: "Logan and Chris Hall", amount: 730.00 },
+        { name: "Kevin Shen", amount: 500.00 }
+      ]
+    };
+
+    const countdownGraphic = document.getElementById("countdownGraphic");
+    const countdownValue = document.getElementById("countdownValue");
+    const countdownActive = document.getElementById("countdownActive");
+    const countdownComplete = document.getElementById("countdownComplete");
+    const countdownPromo = document.getElementById("countdownPromo");
+
+    const compactLowerThird = document.getElementById("compactLowerThird");
+    const compactFundBar = document.getElementById("compactFundBar");
+    const compactRaised = document.getElementById("compactRaised");
+    const compactGoal = document.getElementById("compactGoal");
+    const compactFill = document.getElementById("compactFill");
+    const compactCountdown = document.getElementById("compactCountdown");
+    const compactCountdownValue = document.getElementById("compactCountdownValue");
+
+    const fundraiserGraphic = document.getElementById("fundraiserGraphic");
+    const fundStats = document.getElementById("fundStats");
+    const fundRaised = document.getElementById("fundRaised");
+    const fundGoal = document.getElementById("fundGoal");
+    const fundFill = document.getElementById("fundFill");
+    const tickerStinger = document.getElementById("tickerStinger");
+    const tickerLayer = document.getElementById("tickerLayer");
+    const tickerViewport = document.getElementById("tickerViewport");
+    const tickerTrack = document.getElementById("tickerTrack");
+
+    const programView = document.getElementById("programView");
+    const brbCameraScreen = document.getElementById("brbCameraScreen");
+    const brbCameraShutter = document.getElementById("brbCameraShutter");
+    const brbFullScreen = document.getElementById("brbFullScreen");
+    const brbTransition = document.getElementById("brbTransition");
+    const brbCamMessage = document.getElementById("brbCamMessage");
+    const brbFullMessage = document.getElementById("brbFullMessage");
+    const brbCamHours = document.getElementById("brbCamHours");
+    const brbCamMinutes = document.getElementById("brbCamMinutes");
+    const brbCamSeconds = document.getElementById("brbCamSeconds");
+
+    const brbFullHours = document.getElementById("brbFullHours");
+    const brbFullMinutes = document.getElementById("brbFullMinutes");
+    const brbFullSeconds = document.getElementById("brbFullSeconds");
+    const brbCamRaised = document.getElementById("brbCamRaised");
+    const brbCamGoal = document.getElementById("brbCamGoal");
+    const brbCamFill = document.getElementById("brbCamFill");
+    const brbFullRaised = document.getElementById("brbFullRaised");
+    const brbFullGoal = document.getElementById("brbFullGoal");
+    const brbFullFill = document.getElementById("brbFullFill");
+    const brbCamTickerTrack = document.getElementById("brbCamTickerTrack");
+    const brbCamTickerA = document.getElementById("brbCamTickerA");
+    const brbCamTickerB = document.getElementById("brbCamTickerB");
+    const brbFullTickerTrack = document.getElementById("brbFullTickerTrack");
+    const brbFullTickerA = document.getElementById("brbFullTickerA");
+    const brbFullTickerB = document.getElementById("brbFullTickerB");
+
+    const prefs = Object.assign(
+      {
+        countdownVisible: true,
+        fundraiserVisible: true,
+        lowerThirdMode: "standard",
+        brbMessage: "We'll Be Right Back",
+        theme: "red",
+        dsk: {
+          enabled: true,
+          url: "ws://127.0.0.1:4455",
+          password: "",
+          keyerName: "DSK 1",
+          sceneName: "H4H BRB Camera",
+          cameraSource: ""
+        }
+      },
+      lsRead(PREF_KEY) || {}
+    );
+
+    prefs.dsk = Object.assign(
+      {
+        enabled: true,
+        url: "ws://127.0.0.1:4455",
+        password: "",
+        keyerName: "DSK 1",
+        sceneName: "H4H BRB Camera",
+        cameraSource: ""
+      },
+      prefs.dsk || {}
+    );
+
+    const savedData = lsRead(DATA_KEY);
+    let lastGood = (
+      savedData &&
+      Number.isFinite(savedData.raised) &&
+      Number.isFinite(savedData.goal) &&
+      Array.isArray(savedData.players) &&
+      savedData.players.length
+    ) ? savedData : SEED;
+
+    const state = {
+      version: 2,
+      updatedAt: Date.now(),
+      countdown: {
+        visible: !!prefs.countdownVisible,
+        animation: "idle",
+        nextAnimationAt: null,
+        eventComplete: false
+      },
+      fundraiser: {
+        visible: !!prefs.fundraiserVisible,
+        animation: "build",
+        nextAnimationAt: null,
+        raised: lastGood.raised,
+        goal: lastGood.goal,
+        playerCount: lastGood.players.length,
+        sync: {
+          ok: null,
+          inFlight: false,
+          lastAttemptAt: null,
+          lastSuccessAt: savedData && savedData.lastSuccessAt
+            ? savedData.lastSuccessAt
+            : null,
+          offlineSinceAt: null,
+          nextSyncAt: null,
+          error: null
+        }
+      },
+      lowerThird: {
+        mode: prefs.lowerThirdMode === "compact" ? "compact" : "standard",
+        transition: "idle"
+      },
+      brb: {
+        visible: false,
+        mode: "camera",
+        transition: "idle",
+        message: prefs.brbMessage || "We'll Be Right Back"
+      },
+      theme: prefs.theme === "celtics" ? "celtics" : "red",
+      dsk: {
+        connected: false,
+        connecting: false,
+        prepared: false,
+        active: false,
+        keyerName: prefs.dsk.keyerName || "DSK 1",
+        sceneName: prefs.dsk.sceneName || "H4H BRB Camera",
+        cameraSource: prefs.dsk.cameraSource || "",
+        error: null
+      }
+    };
+
+    const money = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+
+    const wholeMoney = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0
+    });
+
+    let countdownScheduleTimer = null;
+    let countdownEndTimer = null;
+    let countdownVisibilityTimer = null;
+    let fundraiserVisibilityTimer = null;
+    let linkedPromoTimer = null;
+    let linkedPromoActive = false;
+    let lowerThirdResumeTimer = null;
+    let lowerThirdLayoutTimer = null;
+    let brbTransitionTimers = [];
+    let brbTransitionTarget = null;
+    let brbTransitionAction = null;
+    let tickerScheduleTimer = null;
+    let tickerTimers = [];
+    let syncTimer = null;
+    let syncInFlight = false;
+    let lastCommandId = null;
+
+    let obsSocket = null;
+    let obsIdentified = false;
+    let obsConnectPromise = null;
+    let obsConnectResolve = null;
+    let obsConnectReject = null;
+    let obsRequestSeq = 0;
+    let obsPending = new Map();
+    let obsReconnectTimer = null;
+    let dskPreparePromise = null;
+
+    function persistPrefs() {
+      lsWrite(PREF_KEY, {
+        countdownVisible: state.countdown.visible,
+        fundraiserVisible: state.fundraiser.visible,
+        lowerThirdMode: state.lowerThird.mode,
+        brbMessage: state.brb.message,
+        theme: state.theme,
+        dsk: Object.assign({}, prefs.dsk)
+      });
+    }
+
+    function publishState() {
+      state.updatedAt = Date.now();
+      lsWrite(STATE_KEY, state);
+
+      if (channel) {
+        try {
+          channel.postMessage({ type: "state", state });
+        } catch (_) {}
+      }
+    }
+
+    function applyTheme(theme, persist = true) {
+      state.theme = theme === "celtics" ? "celtics" : "red";
+      document.body.classList.toggle(
+        "theme-celtics",
+        state.theme === "celtics"
+      );
+
+      if (persist) {
+        prefs.theme = state.theme;
+        persistPrefs();
+      }
+
+      publishState();
+    }
+
+    function dskConfig() {
+      return Object.assign(
+        {
+          enabled: true,
+          url: "ws://127.0.0.1:4455",
+          password: "",
+          keyerName: "DSK 1",
+          sceneName: "H4H BRB Camera",
+          cameraSource: ""
+        },
+        prefs.dsk || {}
+      );
+    }
+
+    function bytesToBase64(bytes) {
+      let binary = "";
+      for (const byte of bytes) {
+        binary += String.fromCharCode(byte);
+      }
+      return btoa(binary);
+    }
+
+    async function sha256Base64(value) {
+      if (!window.crypto || !crypto.subtle) {
+        throw new Error("Web Crypto is unavailable in this browser context.");
+      }
+
+      const data = new TextEncoder().encode(value);
+      const digest = await crypto.subtle.digest("SHA-256", data);
+      return bytesToBase64(new Uint8Array(digest));
+    }
+
+    async function makeObsAuth(password, salt, challenge) {
+      const secret = await sha256Base64(password + salt);
+      return sha256Base64(secret + challenge);
+    }
+
+    function setDskState(patch) {
+      Object.assign(state.dsk, patch || {});
+      publishState();
+    }
+
+    function rejectObsPending(reason) {
+      for (const [, pending] of obsPending) {
+        clearTimeout(pending.timer);
+        pending.reject(new Error(reason || "OBS WebSocket disconnected."));
+      }
+      obsPending.clear();
+    }
+
+    function closeObsSocket(reason = null, scheduleReconnect = false) {
+      if (obsReconnectTimer) {
+        clearTimeout(obsReconnectTimer);
+        obsReconnectTimer = null;
+      }
+
+      rejectObsPending(reason || "OBS WebSocket disconnected.");
+
+      const socket = obsSocket;
+      obsSocket = null;
+      obsIdentified = false;
+      obsConnectPromise = null;
+
+      if (socket) {
+        try { socket.close(); } catch (_) {}
+      }
+
+      if (obsConnectReject) {
+        try {
+          obsConnectReject(new Error(reason || "OBS WebSocket disconnected."));
+        } catch (_) {}
+      }
+
+      obsConnectResolve = null;
+      obsConnectReject = null;
+
+      setDskState({
+        connected: false,
+        connecting: false,
+        active: false,
+        error: reason
+      });
+
+      if (scheduleReconnect) {
+        scheduleObsReconnect();
+      }
+    }
+
+    function scheduleObsReconnect() {
+      const cfg = dskConfig();
+
+      if (
+        !cfg.enabled ||
+        !cfg.cameraSource ||
+        !cfg.keyerName ||
+        obsReconnectTimer
+      ) {
+        return;
+      }
+
+      obsReconnectTimer = setTimeout(() => {
+        obsReconnectTimer = null;
+        connectObs().catch(() => {});
+      }, 5000);
+    }
+
+    function connectObs(force = false) {
+      const cfg = dskConfig();
+
+      if (!cfg.enabled) {
+        return Promise.reject(new Error("Automatic Camera DSK is disabled."));
+      }
+
+      if (
+        obsIdentified &&
+        obsSocket &&
+        obsSocket.readyState === WebSocket.OPEN &&
+        !force
+      ) {
+        return Promise.resolve(true);
+      }
+
+      if (obsConnectPromise && !force) {
+        return obsConnectPromise;
+      }
+
+      if (force && obsSocket) {
+        try { obsSocket.close(); } catch (_) {}
+        obsSocket = null;
+        obsIdentified = false;
+      }
+
+      setDskState({
+        connecting: true,
+        connected: false,
+        error: null
+      });
+
+      obsConnectPromise = new Promise((resolve, reject) => {
+        obsConnectResolve = resolve;
+        obsConnectReject = reject;
+
+        let socket;
+        try {
+          socket = new WebSocket(cfg.url);
+        } catch (error) {
+          obsConnectPromise = null;
+          setDskState({
+            connecting: false,
+            connected: false,
+            error: error.message || "Could not create OBS WebSocket."
+          });
+          reject(error);
+          return;
+        }
+
+        obsSocket = socket;
+
+        const connectTimeout = setTimeout(() => {
+          if (!obsIdentified) {
+            const error = new Error("OBS WebSocket connection timed out.");
+            try { socket.close(); } catch (_) {}
+            setDskState({
+              connecting: false,
+              connected: false,
+              error: error.message
+            });
+            obsConnectPromise = null;
+            reject(error);
+          }
+        }, 7000);
+
+        socket.addEventListener("message", async event => {
+          let message;
+
+          try {
+            message = JSON.parse(event.data);
+          } catch (_) {
+            return;
+          }
+
+          if (message.op === 0) {
+            try {
+              const hello = message.d || {};
+              const identify = {
+                rpcVersion: hello.rpcVersion || 1,
+                eventSubscriptions: 0
+              };
+
+              if (hello.authentication) {
+                if (!cfg.password) {
+                  throw new Error("OBS WebSocket requires a password.");
+                }
+
+                identify.authentication = await makeObsAuth(
+                  cfg.password,
+                  hello.authentication.salt,
+                  hello.authentication.challenge
+                );
+              }
+
+              socket.send(JSON.stringify({
+                op: 1,
+                d: identify
+              }));
+
+            } catch (error) {
+              setDskState({
+                connecting: false,
+                connected: false,
+                error: error.message || "OBS authentication failed."
+              });
+
+              try { socket.close(); } catch (_) {}
+            }
+
+          } else if (message.op === 2) {
+            clearTimeout(connectTimeout);
+
+            obsIdentified = true;
+            obsConnectPromise = null;
+
+            setDskState({
+              connecting: false,
+              connected: true,
+              error: null
+            });
+
+            if (obsConnectResolve) {
+              obsConnectResolve(true);
+            }
+
+            obsConnectResolve = null;
+            obsConnectReject = null;
+
+          } else if (message.op === 7) {
+            const data = message.d || {};
+            const pending = obsPending.get(data.requestId);
+
+            if (!pending) return;
+
+            obsPending.delete(data.requestId);
+            clearTimeout(pending.timer);
+
+            const status = data.requestStatus || {};
+
+            if (status.result) {
+              pending.resolve(data.responseData || {});
+            } else {
+              pending.reject(
+                new Error(
+                  status.comment ||
+                  `OBS request failed (${status.code || "unknown"})`
+                )
+              );
+            }
+          }
+        });
+
+        socket.addEventListener("close", () => {
+          clearTimeout(connectTimeout);
+
+          const wasIdentified = obsIdentified;
+          obsIdentified = false;
+          obsSocket = null;
+          obsConnectPromise = null;
+
+          rejectObsPending("OBS WebSocket disconnected.");
+
+          if (obsConnectReject && !wasIdentified) {
+            obsConnectReject(
+              new Error("OBS WebSocket closed before identification.")
+            );
+          }
+
+          obsConnectResolve = null;
+          obsConnectReject = null;
+
+          setDskState({
+            connecting: false,
+            connected: false,
+            active: false,
+            error: state.dsk.error || "OBS WebSocket disconnected."
+          });
+
+          scheduleObsReconnect();
+        });
+
+        socket.addEventListener("error", () => {
+          setDskState({
+            connecting: false,
+            connected: false,
+            error: "OBS WebSocket connection error."
+          });
+        });
+      });
+
+      return obsConnectPromise;
+    }
+
+    async function obsRequest(requestType, requestData = {}) {
+      await connectObs();
+
+      if (
+        !obsSocket ||
+        !obsIdentified ||
+        obsSocket.readyState !== WebSocket.OPEN
+      ) {
+        throw new Error("OBS WebSocket is not connected.");
+      }
+
+      const requestId = `h4h-${Date.now()}-${++obsRequestSeq}`;
+
+      return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+          obsPending.delete(requestId);
+          reject(new Error(`${requestType} timed out.`));
+        }, 4000);
+
+        obsPending.set(requestId, {
+          resolve,
+          reject,
+          timer
+        });
+
+        obsSocket.send(JSON.stringify({
+          op: 6,
+          d: {
+            requestType,
+            requestId,
+            requestData
+          }
+        }));
+      });
+    }
+
+    async function callDskVendor(requestType, requestData = {}) {
+      const response = await obsRequest("CallVendorRequest", {
+        vendorName: "downstream-keyer",
+        requestType,
+        requestData
+      });
+
+      const vendorData = response.responseData || {};
+
+      if (vendorData.success === false) {
+        throw new Error(
+          vendorData.error ||
+          `Downstream Keyer request "${requestType}" failed.`
+        );
+      }
+
+      return vendorData;
+    }
+
+    function dskTargetTransform() {
+      /*
+        The visible BRB frame is 1120×630 at x70/y150 with a 6px border.
+
+        The GFX package is itself running downstream, so it owns the visible
+        frame/outline. The camera DSK only needs to completely fill the INNER
+        opening without ever sitting on top of that outline:
+
+          inner box: x76 / y156 / 1108×618
+
+        SCALE_OUTER preserves source aspect ratio while completely filling
+        the opening. Any aspect-ratio mismatch is cropped by a few pixels
+        instead of producing black pillar/letterbox bars.
+      */
+      return {
+        positionX: 76,
+        positionY: 156,
+        rotation: 0,
+        alignment: 5,
+        boundsType: "OBS_BOUNDS_SCALE_OUTER",
+        boundsAlignment: 0,
+        boundsWidth: 1108,
+        boundsHeight: 618,
+        cropLeft: 0,
+        cropTop: 0,
+        cropRight: 0,
+        cropBottom: 0
+      };
+    }
+
+    async function ensureDskCameraScene() {
+      const cfg = dskConfig();
+
+      if (!cfg.enabled) {
+        throw new Error("Automatic Camera DSK is disabled.");
+      }
+
+      if (!cfg.cameraSource) {
+        throw new Error("Camera source name is not configured.");
+      }
+
+      if (!cfg.keyerName) {
+        throw new Error("Downstream Keyer name is not configured.");
+      }
+
+      if (!cfg.sceneName) {
+        throw new Error("DSK camera scene name is not configured.");
+      }
+
+      if (dskPreparePromise) return dskPreparePromise;
+
+      dskPreparePromise = (async () => {
+        try {
+          await connectObs();
+
+          const sceneList = await obsRequest("GetSceneList");
+          const scenes = Array.isArray(sceneList.scenes)
+            ? sceneList.scenes.map(scene => scene.sceneName)
+            : [];
+
+          if (!scenes.includes(cfg.sceneName)) {
+            await obsRequest("CreateScene", {
+              sceneName: cfg.sceneName
+            });
+          }
+
+          let sceneItemId = null;
+
+          try {
+            const item = await obsRequest("GetSceneItemId", {
+              sceneName: cfg.sceneName,
+              sourceName: cfg.cameraSource
+            });
+
+            sceneItemId = item.sceneItemId;
+
+          } catch (_) {
+            const created = await obsRequest("CreateSceneItem", {
+              sceneName: cfg.sceneName,
+              sourceName: cfg.cameraSource,
+              sceneItemEnabled: true
+            });
+
+            sceneItemId = created.sceneItemId;
+          }
+
+          if (!Number.isFinite(sceneItemId)) {
+            throw new Error(
+              `Camera source "${cfg.cameraSource}" could not be added to "${cfg.sceneName}".`
+            );
+          }
+
+          await obsRequest("SetSceneItemTransform", {
+            sceneName: cfg.sceneName,
+            sceneItemId,
+            sceneItemTransform: dskTargetTransform()
+          });
+
+          await obsRequest("SetSceneItemEnabled", {
+            sceneName: cfg.sceneName,
+            sceneItemId,
+            sceneItemEnabled: true
+          });
+
+          await callDskVendor("dsk_add_scene", {
+            view_name: "",
+            dsk_name: cfg.keyerName,
+            scene: cfg.sceneName,
+            insertBeforeRow: 9999
+          });
+
+          await callDskVendor("dsk_select_scene", {
+            view_name: "",
+            dsk_name: cfg.keyerName,
+            scene: ""
+          });
+
+          setDskState({
+            connected: true,
+            prepared: true,
+            active: false,
+            keyerName: cfg.keyerName,
+            sceneName: cfg.sceneName,
+            cameraSource: cfg.cameraSource,
+            error: null
+          });
+
+          return true;
+
+        } catch (error) {
+          setDskState({
+            prepared: false,
+            active: false,
+            error: error.message || "DSK preparation failed."
+          });
+          throw error;
+
+        } finally {
+          dskPreparePromise = null;
+        }
+      })();
+
+      return dskPreparePromise;
+    }
+
+    async function activateCameraDsk() {
+      const cfg = dskConfig();
+
+      if (!cfg.enabled) {
+        brbCameraScreen.classList.remove("dsk-shuttered");
+        return false;
+      }
+
+      try {
+        await ensureDskCameraScene();
+
+        await callDskVendor("dsk_select_scene", {
+          view_name: "",
+          dsk_name: cfg.keyerName,
+          scene: cfg.sceneName
+        });
+
+        setDskState({
+          connected: true,
+          prepared: true,
+          active: true,
+          error: null
+        });
+
+        /*
+          The camera viewport is transparent. Layer the camera DSK beneath
+          the H4H GFX DSK so the graphics package remains responsible for
+          the visible frame and outline.
+        */
+        brbCameraScreen.classList.remove("dsk-shuttered");
+
+        return true;
+
+      } catch (error) {
+        brbCameraScreen.classList.add("dsk-shuttered");
+
+        setDskState({
+          active: false,
+          error: error.message || "Camera DSK could not be enabled."
+        });
+
+        return false;
+      }
+    }
+
+    async function releaseCameraDsk() {
+      brbCameraScreen.classList.add("dsk-shuttered");
+
+      const cfg = dskConfig();
+
+      if (!cfg.enabled || !cfg.keyerName) {
+        setDskState({ active: false });
+        return true;
+      }
+
+      try {
+        await callDskVendor("dsk_select_scene", {
+          view_name: "",
+          dsk_name: cfg.keyerName,
+          scene: ""
+        });
+
+        setDskState({
+          connected: true,
+          active: false,
+          error: null
+        });
+
+        return true;
+
+      } catch (error) {
+        setDskState({
+          active: false,
+          error: error.message || "Camera DSK release failed."
+        });
+
+        return false;
+      }
+    }
+
+    function configureDsk(value) {
+      const next = Object.assign(
+        {
+          enabled: true,
+          url: "ws://127.0.0.1:4455",
+          password: "",
+          keyerName: "DSK 1",
+          sceneName: "H4H BRB Camera",
+          cameraSource: ""
+        },
+        value || {}
+      );
+
+      prefs.dsk = {
+        enabled: next.enabled !== false,
+        url: String(next.url || "ws://127.0.0.1:4455").trim(),
+        password: String(next.password || ""),
+        keyerName: String(next.keyerName || "DSK 1").trim(),
+        sceneName: String(next.sceneName || "H4H BRB Camera").trim(),
+        cameraSource: String(next.cameraSource || "").trim()
+      };
+
+      state.dsk.keyerName = prefs.dsk.keyerName;
+      state.dsk.sceneName = prefs.dsk.sceneName;
+      state.dsk.cameraSource = prefs.dsk.cameraSource;
+      state.dsk.prepared = false;
+      state.dsk.active = false;
+      state.dsk.error = null;
+
+      persistPrefs();
+      publishState();
+
+      dskPreparePromise = null;
+
+      closeObsSocket(null, false);
+
+      if (
+        prefs.dsk.enabled &&
+        prefs.dsk.cameraSource &&
+        prefs.dsk.keyerName
+      ) {
+        connectObs(true).catch(() => {});
+      }
+    }
+
+    function clearLowerThirdLayoutTimer() {
+      if (lowerThirdLayoutTimer) {
+        clearTimeout(lowerThirdLayoutTimer);
+        lowerThirdLayoutTimer = null;
+      }
+      programView.classList.remove("standard-to-compact");
+    }
+
+    function syncCompactParts() {
+      compactFundBar.classList.toggle(
+        "part-hidden",
+        !state.fundraiser.visible
+      );
+      compactCountdown.classList.toggle(
+        "part-hidden",
+        !state.countdown.visible
+      );
+    }
+
+    function settleCompactLowerThird() {
+      compactLowerThird.classList.remove(
+        "broadcast-show",
+        "broadcast-hide"
+      );
+      compactLowerThird.style.transform = "";
+    }
+
+    function showCompactLowerThird(animate = true) {
+      syncCompactParts();
+
+      const anythingVisible =
+        state.countdown.visible || state.fundraiser.visible;
+
+      if (!anythingVisible) {
+        compactLowerThird.classList.add("graphic-hidden");
+        settleCompactLowerThird();
+        return;
+      }
+
+      compactLowerThird.classList.remove(
+        "graphic-hidden",
+        "broadcast-hide"
+      );
+      compactLowerThird.style.transform = "";
+
+      if (animate) {
+        compactLowerThird.classList.remove("broadcast-show");
+        void compactLowerThird.offsetWidth;
+        compactLowerThird.classList.add("broadcast-show");
+
+        clearLowerThirdLayoutTimer();
+        lowerThirdLayoutTimer = setTimeout(() => {
+          settleCompactLowerThird();
+          lowerThirdLayoutTimer = null;
+          if (state.lowerThird.transition !== "idle") {
+            state.lowerThird.transition = "idle";
+          }
+          publishState();
+        }, 1020);
+      } else {
+        settleCompactLowerThird();
+      }
+    }
+
+    function hideCompactLowerThird(animate = true, after = null) {
+      clearLowerThirdLayoutTimer();
+
+      if (
+        animate &&
+        !compactLowerThird.classList.contains("graphic-hidden")
+      ) {
+        compactLowerThird.classList.remove("broadcast-show");
+        void compactLowerThird.offsetWidth;
+        compactLowerThird.classList.add("broadcast-hide");
+
+        lowerThirdLayoutTimer = setTimeout(() => {
+          compactLowerThird.classList.add("graphic-hidden");
+          settleCompactLowerThird();
+          lowerThirdLayoutTimer = null;
+          if (after) after();
+        }, 500);
+      } else {
+        compactLowerThird.classList.add("graphic-hidden");
+        settleCompactLowerThird();
+        if (after) after();
+      }
+    }
+
+    function setLowerThirdMode(mode, animate = true) {
+      mode = mode === "compact" ? "compact" : "standard";
+
+      if (
+        state.lowerThird.mode === mode &&
+        state.lowerThird.transition === "idle"
+      ) return;
+
+      clearLowerThirdLayoutTimer();
+      stopCountdownPromo();
+
+      if (state.fundraiser.animation === "ticker") {
+        restoreFundraiserStats(false);
+      }
+
+      state.lowerThird.mode = mode;
+      prefs.lowerThirdMode = mode;
+      state.lowerThird.transition = "switching";
+      persistPrefs();
+      publishState();
+
+      /*
+        While BRB is on air, a layout change is a PRESET selection rather
+        than an on-air transition. Prep the chosen layout silently beneath
+        BRB, then the existing BRB-return routine will build that selected
+        layout on air after its 1.5-second hold.
+      */
+      const brbOwnsProgram =
+        state.brb.visible ||
+        state.brb.transition !== "idle" ||
+        programView.classList.contains("brb-active") ||
+        programView.classList.contains("resume-lt-hidden");
+
+      if (brbOwnsProgram) {
+        programView.classList.remove("standard-to-compact");
+
+        settleCountdownGraphic();
+        abortFundraiserVisualState();
+        fundraiserGraphic.classList.add("built");
+
+        compactLowerThird.classList.add("graphic-hidden");
+        settleCompactLowerThird();
+        syncCompactParts();
+
+        if (mode === "compact") {
+          programView.classList.add("compact-lt-mode");
+        } else {
+          programView.classList.remove("compact-lt-mode");
+        }
+
+        state.lowerThird.transition = "idle";
+        persistPrefs();
+        publishState();
+        return;
+      }
+
+      if (mode === "compact") {
+        /*
+          Treat the Standard -> Compact change as ONE layout transition.
+          The old timer + fundraiser drop together without their individual
+          red takeovers, then the new full-width compact bar builds center-out.
+        */
+        const finishToCompact = () => {
+          programView.classList.remove("standard-to-compact");
+
+          settleCountdownGraphic();
+          abortFundraiserVisualState();
+          fundraiserGraphic.classList.add("built");
+
+          programView.classList.add("compact-lt-mode");
+          showCompactLowerThird(animate);
+        };
+
+        if (animate) {
+          programView.classList.remove("standard-to-compact");
+          void programView.offsetWidth;
+          programView.classList.add("standard-to-compact");
+
+          lowerThirdLayoutTimer = setTimeout(() => {
+            lowerThirdLayoutTimer = null;
+            finishToCompact();
+          }, 345);
+        } else {
+          finishToCompact();
+          state.lowerThird.transition = "idle";
+          publishState();
+        }
+
+      } else {
+        const finishToStandard = () => {
+          programView.classList.remove("compact-lt-mode");
+
+          if (state.countdown.visible) {
+            setCountdownVisibility(true, animate);
+          } else {
+            setCountdownVisibility(false, false);
+          }
+
+          if (state.fundraiser.visible) {
+            setFundraiserVisibility(true, animate);
+          } else {
+            setFundraiserVisibility(false, false);
+          }
+
+          state.lowerThird.transition = "idle";
+          publishState();
+        };
+
+        hideCompactLowerThird(animate, finishToStandard);
+      }
+    }
+
+    function clearVisibilityTimer(which) {
+      if (which === "countdown" && countdownVisibilityTimer) {
+        clearTimeout(countdownVisibilityTimer);
+        countdownVisibilityTimer = null;
+      }
+
+      if (which === "fundraiser" && fundraiserVisibilityTimer) {
+        clearTimeout(fundraiserVisibilityTimer);
+        fundraiserVisibilityTimer = null;
+      }
+    }
+
+    function settleCountdownGraphic() {
+      countdownGraphic.classList.remove(
+        "broadcast-show",
+        "broadcast-hide"
+      );
+      countdownGraphic.style.transform = "";
+    }
+
+    function abortFundraiserVisualState() {
+      clearTickerTimers();
+      endTickerLinkedCountdownPromo();
+
+      tickerLayer.classList.remove(
+        "active",
+        "intro",
+        "ticker-exit"
+      );
+      tickerStinger.classList.remove("intro");
+
+      tickerTrack.style.transition = "none";
+      tickerTrack.style.transform = "translateX(0px)";
+      tickerTrack.replaceChildren();
+
+      fundStats.classList.remove(
+        "ticker-hidden",
+        "stats-return"
+      );
+
+      fundraiserGraphic.classList.remove(
+        "broadcast-hide",
+        "booting"
+      );
+      fundraiserGraphic.classList.add("built");
+      fundraiserGraphic.style.transform = "";
+    }
+
+    function setCountdownVisibility(visible, animate = true) {
+      clearVisibilityTimer("countdown");
+
+      if (visible) {
+        state.countdown.visible = true;
+        countdownGraphic.classList.remove(
+          "graphic-hidden",
+          "broadcast-hide"
+        );
+        countdownGraphic.style.transform = "";
+
+        if (animate) {
+          state.countdown.animation = "show";
+          countdownGraphic.classList.remove("broadcast-show");
+          void countdownGraphic.offsetWidth;
+          countdownGraphic.classList.add("broadcast-show");
+
+          countdownVisibilityTimer = setTimeout(() => {
+            settleCountdownGraphic();
+            state.countdown.animation = "idle";
+            countdownVisibilityTimer = null;
+            publishState();
+          }, 930);
+        } else {
+          settleCountdownGraphic();
+          state.countdown.animation = "idle";
+        }
+
+      } else {
+        state.countdown.visible = false;
+        stopCountdownPromo();
+
+        if (animate && !countdownGraphic.classList.contains("graphic-hidden")) {
+          state.countdown.animation = "hide";
+          countdownGraphic.classList.remove("broadcast-show");
+          countdownGraphic.style.transform = "";
+          void countdownGraphic.offsetWidth;
+          countdownGraphic.classList.add("broadcast-hide");
+
+          countdownVisibilityTimer = setTimeout(() => {
+            countdownGraphic.classList.add("graphic-hidden");
+            settleCountdownGraphic();
+            state.countdown.animation = "idle";
+            countdownVisibilityTimer = null;
+            publishState();
+          }, 570);
+        } else {
+          countdownGraphic.classList.add("graphic-hidden");
+          settleCountdownGraphic();
+          state.countdown.animation = "idle";
+        }
+      }
+
+      syncCompactParts();
+
+      if (state.lowerThird.mode === "compact") {
+        if (state.countdown.visible || state.fundraiser.visible) {
+          compactLowerThird.classList.remove("graphic-hidden");
+        } else {
+          compactLowerThird.classList.add("graphic-hidden");
+        }
+      }
+
+      persistPrefs();
+      publishState();
+    }
+
+    function setFundraiserVisibility(visible, animate = true) {
+      clearVisibilityTimer("fundraiser");
+
+      if (visible) {
+        state.fundraiser.visible = true;
+
+        clearTickerTimers();
+        tickerLayer.classList.remove(
+          "active",
+          "intro",
+          "ticker-exit"
+        );
+        tickerStinger.classList.remove("intro");
+        tickerTrack.style.transition = "none";
+        tickerTrack.style.transform = "translateX(0px)";
+        tickerTrack.replaceChildren();
+        fundStats.classList.remove(
+          "ticker-hidden",
+          "stats-return"
+        );
+
+        fundraiserGraphic.classList.remove(
+          "graphic-hidden",
+          "broadcast-hide",
+          "built",
+          "booting"
+        );
+        fundraiserGraphic.style.transform = "";
+
+        if (animate) {
+          state.fundraiser.animation = "show";
+
+          /*
+            Re-run the original red -> navy broadcast build plus the staggered
+            data wipes/progress chase from the standalone fundraiser graphic.
+          */
+          void fundraiserGraphic.offsetWidth;
+          fundraiserGraphic.classList.add("booting");
+
+          fundraiserVisibilityTimer = setTimeout(() => {
+            fundraiserGraphic.classList.remove("booting");
+            fundraiserGraphic.classList.add("built");
+            state.fundraiser.animation = "idle";
+            fundraiserVisibilityTimer = null;
+            publishState();
+          }, 1950);
+        } else {
+          fundraiserGraphic.classList.add("built");
+          state.fundraiser.animation = "idle";
+        }
+
+      } else {
+        state.fundraiser.visible = false;
+
+        if (animate && !fundraiserGraphic.classList.contains("graphic-hidden")) {
+          abortFundraiserVisualState();
+
+          state.fundraiser.animation = "hide";
+          void fundraiserGraphic.offsetWidth;
+          fundraiserGraphic.classList.add("broadcast-hide");
+
+          fundraiserVisibilityTimer = setTimeout(() => {
+            fundraiserGraphic.classList.add("graphic-hidden");
+            fundraiserGraphic.classList.remove("broadcast-hide");
+            fundraiserGraphic.style.transform = "";
+            fundraiserGraphic.classList.add("built");
+
+            state.fundraiser.animation = "idle";
+            fundraiserVisibilityTimer = null;
+            publishState();
+          }, 630);
+        } else {
+          abortFundraiserVisualState();
+          fundraiserGraphic.classList.add("graphic-hidden");
+          state.fundraiser.animation = "idle";
+        }
+      }
+
+      syncCompactParts();
+
+      if (state.lowerThird.mode === "compact") {
+        if (state.countdown.visible || state.fundraiser.visible) {
+          compactLowerThird.classList.remove("graphic-hidden");
+        } else {
+          compactLowerThird.classList.add("graphic-hidden");
+        }
+      }
+
+      persistPrefs();
+      publishState();
+    }
+
+    function clearBrbTransitionTimers() {
+      brbTransitionTimers.forEach(clearTimeout);
+      brbTransitionTimers = [];
+    }
+
+    function addBrbTransitionTimer(fn, delay) {
+      const id = setTimeout(fn, delay);
+      brbTransitionTimers.push(id);
+      return id;
+    }
+
+    function buildHoldingRails() {
+      document.querySelectorAll(".brb-hold-track").forEach(track => {
+        if (track.children.length) return;
+        const widths = ["long", "short", "", "short", "long", "", "short", ""];
+        for (let repeat = 0; repeat < 3; repeat++) {
+          widths.forEach(kind => {
+            const block = document.createElement("span");
+            block.className = "brb-hold-block" + (kind ? ` ${kind}` : "");
+            track.appendChild(block);
+          });
+        }
+      });
+    }
+
+    function renderBrbMessage() {
+      brbCamMessage.textContent = state.brb.message;
+      brbFullMessage.textContent = state.brb.message;
+    }
+
+    function makeBrbPlayerNode(player) {
+      const item = document.createElement("span");
+      item.className = "brb-player";
+
+      const name = document.createElement("span");
+      name.textContent = player.name;
+
+      const amount = document.createElement("span");
+      amount.className = "brb-player-amount";
+      amount.textContent = money.format(player.amount);
+
+      const sep = document.createElement("span");
+      sep.className = "brb-player-sep";
+      sep.setAttribute("aria-hidden", "true");
+
+      item.append(name, amount, sep);
+      return item;
+    }
+
+    function fillBrbTickerSet(container, players) {
+      container.replaceChildren();
+      players.forEach(player => {
+        container.appendChild(makeBrbPlayerNode(player));
+      });
+    }
+
+    function renderBrbTopPlayers(players) {
+      const safePlayers = players && players.length ? players : SEED.players;
+
+      fillBrbTickerSet(brbCamTickerA, safePlayers);
+      fillBrbTickerSet(brbCamTickerB, safePlayers);
+      fillBrbTickerSet(brbFullTickerA, safePlayers);
+      fillBrbTickerSet(brbFullTickerB, safePlayers);
+
+      const duration = Math.max(34, safePlayers.length * 4.2);
+      brbCamTickerTrack.style.animationDuration = `${duration}s`;
+      brbFullTickerTrack.style.animationDuration = `${duration}s`;
+    }
+
+    function renderBrbFundraiser() {
+      const pct = Math.max(
+        0,
+        Math.min(100, (lastGood.raised / lastGood.goal) * 100)
+      );
+
+      const raised = money.format(lastGood.raised);
+      const goal = wholeMoney.format(lastGood.goal);
+      const width = pct.toFixed(4) + "%";
+
+      brbCamRaised.textContent = raised;
+      brbCamGoal.textContent = goal;
+      brbCamFill.style.width = width;
+
+      brbFullRaised.textContent = raised;
+      brbFullGoal.textContent = goal;
+      brbFullFill.style.width = width;
+    }
+
+    function brbScreenForMode(mode) {
+      return mode === "full" ? brbFullScreen : brbCameraScreen;
+    }
+
+    function clearLowerThirdResumeTimer() {
+      if (lowerThirdResumeTimer) {
+        clearTimeout(lowerThirdResumeTimer);
+        lowerThirdResumeTimer = null;
+      }
+    }
+
+    function holdLowerThirdsForResume() {
+      clearLowerThirdResumeTimer();
+      programView.classList.add("resume-lt-hidden");
+
+      /*
+        After BRB clears away, hold the normal lower-thirds off-air for
+        1.5 seconds. Then rebuild whichever graphics were supposed to be
+        visible using their full broadcast entrance animations.
+
+        We first temporarily hide those child elements, remove the parent
+        suppression, then trigger their normal Show routines on the next
+        animation frame. This prevents the one-frame hard-cut flash that
+        would otherwise happen between suppression release and animation.
+      */
+      lowerThirdResumeTimer = setTimeout(() => {
+        const showCountdown = state.countdown.visible;
+        const showFundraiser = state.fundraiser.visible;
+        const compactMode = state.lowerThird.mode === "compact";
+
+        if (compactMode) {
+          compactLowerThird.classList.add("graphic-hidden");
+        } else {
+          if (showCountdown) {
+            countdownGraphic.classList.add("graphic-hidden");
+          }
+
+          if (showFundraiser) {
+            fundraiserGraphic.classList.add("graphic-hidden");
+          }
+        }
+
+        programView.classList.remove("resume-lt-hidden");
+        lowerThirdResumeTimer = null;
+
+        requestAnimationFrame(() => {
+          if (compactMode) {
+            showCompactLowerThird(true);
+            return;
+          }
+
+          if (showCountdown) {
+            setCountdownVisibility(true, true);
+          }
+
+          if (showFundraiser) {
+            setFundraiserVisibility(true, true);
+          }
+        });
+      }, 1500);
+    }
+
+    function deactivateBrbScreens() {
+      [brbCameraScreen, brbFullScreen].forEach(screen => {
+        screen.classList.remove("active", "reveal");
+      });
+    }
+
+    function resetBrbTransition() {
+      brbTransition.classList.remove("active", "show-in", "hide-out");
+      void brbTransition.offsetWidth;
+    }
+
+    function revealBrbScreen(mode) {
+      const target = brbScreenForMode(mode);
+      deactivateBrbScreens();
+      target.classList.add("active");
+      target.classList.remove("reveal");
+      void target.offsetWidth;
+      target.classList.add("reveal");
+    }
+
+    async function settleBrbShow(mode) {
+      clearBrbTransitionTimers();
+      clearLowerThirdResumeTimer();
+      programView.classList.remove("resume-lt-hidden");
+      resetBrbTransition();
+      programView.classList.add("brb-active");
+
+      if (mode === "camera") {
+        brbCameraScreen.classList.add("dsk-shuttered");
+        revealBrbScreen(mode);
+        await activateCameraDsk();
+      } else {
+        brbCameraScreen.classList.add("dsk-shuttered");
+        await releaseCameraDsk();
+        revealBrbScreen(mode);
+      }
+
+      state.brb.visible = true;
+      state.brb.mode = mode;
+      state.brb.transition = "idle";
+      brbTransitionAction = null;
+      brbTransitionTarget = null;
+      publishState();
+    }
+
+    async function settleBrbHide() {
+      clearBrbTransitionTimers();
+      resetBrbTransition();
+
+      brbCameraScreen.classList.add("dsk-shuttered");
+      await releaseCameraDsk();
+
+      deactivateBrbScreens();
+      programView.classList.remove("brb-active");
+      holdLowerThirdsForResume();
+
+      state.brb.visible = false;
+      state.brb.transition = "idle";
+      brbTransitionAction = null;
+      brbTransitionTarget = null;
+      publishState();
+    }
+
+    function showBrb(mode) {
+      if (mode !== "camera" && mode !== "full") mode = "camera";
+
+      clearBrbTransitionTimers();
+      clearLowerThirdResumeTimer();
+      programView.classList.remove("resume-lt-hidden");
+      resetBrbTransition();
+
+      /*
+        The camera is provided by the Downstream Keyer plugin, which sits
+        above this HTML source. Keep the local viewport shutter closed until
+        the DSK is actually on so the base program can never flash through.
+      */
+      brbCameraScreen.classList.add("dsk-shuttered");
+
+      if (mode === "camera") {
+        ensureDskCameraScene().catch(() => {});
+      } else if (state.dsk.active) {
+        releaseCameraDsk().catch(() => {});
+      }
+
+      programView.classList.add("brb-active");
+
+      /* Cancel momentary lower-third animations that would otherwise run
+         invisibly behind BRB. Their automatic schedules remain intact. */
+      stopCountdownPromo();
+      if (state.fundraiser.animation === "ticker") {
+        restoreFundraiserStats(false);
+      }
+
+      state.brb.visible = true;
+      state.brb.mode = mode;
+      state.brb.transition = "showing";
+      brbTransitionAction = "show";
+      brbTransitionTarget = mode;
+      publishState();
+
+      brbTransition.classList.add("active", "show-in");
+
+      /* Transition is covered before the BRB layout swaps. */
+      addBrbTransitionTimer(() => {
+        revealBrbScreen(mode);
+      }, 545);
+
+      /*
+        The DSK is downstream of the browser source, so it cannot be hidden
+        by the HTML stinger. Bring it on only at the tail of the transition,
+        when the camera viewport is intended to be visible.
+      */
+      if (mode === "camera") {
+        addBrbTransitionTimer(() => {
+          activateCameraDsk().catch(() => {});
+        }, 1040);
+      }
+
+      addBrbTransitionTimer(() => {
+        resetBrbTransition();
+        state.brb.transition = "idle";
+        brbTransitionAction = null;
+        brbTransitionTarget = null;
+        publishState();
+      }, 1140);
+    }
+
+    function hideBrb() {
+      if (!state.brb.visible && state.brb.transition === "idle") return;
+
+      clearBrbTransitionTimers();
+      resetBrbTransition();
+
+      /*
+        Close the HTML viewport before dropping the downstream key. Because
+        the DSK is topmost, this is what prevents a base-program flash when
+        the keyed camera is released.
+      */
+      brbCameraScreen.classList.add("dsk-shuttered");
+      releaseCameraDsk().catch(() => {});
+
+      state.brb.transition = "hiding";
+      brbTransitionAction = "hide";
+      brbTransitionTarget = null;
+      publishState();
+
+      brbTransition.classList.add("active", "hide-out");
+
+      addBrbTransitionTimer(() => {
+        deactivateBrbScreens();
+        programView.classList.remove("brb-active");
+        holdLowerThirdsForResume();
+        state.brb.visible = false;
+      }, 545);
+
+      addBrbTransitionTimer(() => {
+        resetBrbTransition();
+        state.brb.transition = "idle";
+        brbTransitionAction = null;
+        publishState();
+      }, 1110);
+    }
+
+    function cutBrbTransition() {
+      if (!brbTransitionAction) return;
+
+      if (brbTransitionAction === "show") {
+        settleBrbShow(brbTransitionTarget || state.brb.mode || "camera");
+      } else if (brbTransitionAction === "hide") {
+        settleBrbHide();
+      }
+    }
+
+    function setBrbMessage(value) {
+      const clean = String(value || "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 48);
+
+      state.brb.message = clean || "We'll Be Right Back";
+      renderBrbMessage();
+      persistPrefs();
+      publishState();
+    }
+
+    function randomCountdownInterval() {
+      return Math.floor(
+        Math.random() *
+        (COUNTDOWN_MAX_INTERVAL - COUNTDOWN_MIN_INTERVAL + 1)
+      ) + COUNTDOWN_MIN_INTERVAL;
+    }
+
+    function clearCountdownSchedule() {
+      if (countdownScheduleTimer) {
+        clearTimeout(countdownScheduleTimer);
+        countdownScheduleTimer = null;
+      }
+    }
+
+    function scheduleCountdown(delayMs) {
+      clearCountdownSchedule();
+
+      if (state.countdown.eventComplete) {
+        state.countdown.nextAnimationAt = null;
+        publishState();
+        return;
+      }
+
+      state.countdown.nextAnimationAt = Date.now() + delayMs;
+      publishState();
+
+      countdownScheduleTimer = setTimeout(() => {
+        if (state.countdown.visible && !state.brb.visible) {
+          runCountdownPromo("auto");
+        } else {
+          scheduleCountdown(randomCountdownInterval());
+        }
+      }, delayMs);
+    }
+
+    function stopCountdownPromo() {
+      if (countdownEndTimer) {
+        clearTimeout(countdownEndTimer);
+        countdownEndTimer = null;
+      }
+
+      cancelLinkedCountdownPromoTimer();
+      linkedPromoActive = false;
+
+      countdownPromo.classList.remove("show");
+      state.countdown.animation = "idle";
+      publishState();
+    }
+
+    function runCountdownPromo(source = "manual") {
+      if (!state.countdown.visible) return;
+      if (state.lowerThird.mode === "compact") return;
+
+      /*
+        Top Players owns the promo card for its full duration.
+        Do not let the normal 7-second promo timer truncate it.
+      */
+      if (linkedPromoActive) return;
+
+      stopCountdownPromo();
+      clearCountdownSchedule();
+
+      state.countdown.animation = "promo";
+      countdownPromo.classList.add("show");
+
+      if (!state.countdown.eventComplete) {
+        scheduleCountdown(randomCountdownInterval());
+      }
+
+      publishState();
+
+      countdownEndTimer = setTimeout(() => {
+        countdownPromo.classList.remove("show");
+        state.countdown.animation = "idle";
+        countdownEndTimer = null;
+        publishState();
+      }, COUNTDOWN_PROMO_DURATION);
+    }
+
+    function cancelLinkedCountdownPromoTimer() {
+      if (linkedPromoTimer) {
+        clearTimeout(linkedPromoTimer);
+        linkedPromoTimer = null;
+      }
+    }
+
+    function startTickerLinkedCountdownPromo() {
+      cancelLinkedCountdownPromoTimer();
+
+      linkedPromoTimer = setTimeout(() => {
+        linkedPromoTimer = null;
+
+        if (
+          !state.countdown.visible ||
+          state.fundraiser.animation !== "ticker"
+        ) {
+          return;
+        }
+
+        /*
+          Take control of the countdown promo without its normal 7-second
+          timeout. It stays up until the Top Players sequence is finished.
+        */
+        if (countdownEndTimer) {
+          clearTimeout(countdownEndTimer);
+          countdownEndTimer = null;
+        }
+
+        clearCountdownSchedule();
+
+        linkedPromoActive = true;
+        state.countdown.animation = "promo-linked";
+
+        countdownPromo.classList.add("show");
+        publishState();
+
+      }, TICKER_COUNTDOWN_PROMO_DELAY);
+    }
+
+    function endTickerLinkedCountdownPromo() {
+      cancelLinkedCountdownPromoTimer();
+
+      if (!linkedPromoActive) return;
+
+      linkedPromoActive = false;
+      countdownPromo.classList.remove("show");
+
+      if (state.countdown.animation === "promo-linked") {
+        state.countdown.animation = "idle";
+      }
+
+      /*
+        Restart the countdown graphic's own randomized 10–15 minute cycle
+        from the end of the linked Top Players appearance, preventing an
+        automatic promo from immediately firing after this coordinated one.
+      */
+      if (!state.countdown.eventComplete) {
+        scheduleCountdown(randomCountdownInterval());
+      } else {
+        publishState();
+      }
+    }
+
+    function updateEventCountdown() {
+      const diff = EVENT_TARGET - Date.now();
+
+      if (diff <= 0) {
+        countdownValue.textContent = "00:00:00";
+        compactCountdownValue.textContent = "00:00:00";
+
+        brbCamHours.textContent = "00";
+        brbCamMinutes.textContent = "00";
+        brbCamSeconds.textContent = "00";
+
+        brbFullHours.textContent = "00";
+        brbFullMinutes.textContent = "00";
+        brbFullSeconds.textContent = "00";
+        countdownActive.style.display = "none";
+        countdownComplete.style.display = "block";
+
+        if (!state.countdown.eventComplete) {
+          state.countdown.eventComplete = true;
+          clearCountdownSchedule();
+          state.countdown.nextAnimationAt = null;
+          publishState();
+        }
+        return;
+      }
+
+      const totalSeconds = Math.floor(diff / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      const countdownText =
+        `${String(hours).padStart(2, "0")}:` +
+        `${String(minutes).padStart(2, "0")}:` +
+        `${String(seconds).padStart(2, "0")}`;
+
+      countdownValue.textContent = countdownText;
+      compactCountdownValue.textContent = countdownText;
+
+      const hoursText = String(hours).padStart(2, "0");
+      const minutesText = String(minutes).padStart(2, "0");
+      const secondsText = String(seconds).padStart(2, "0");
+
+      brbCamHours.textContent = hoursText;
+      brbCamMinutes.textContent = minutesText;
+      brbCamSeconds.textContent = secondsText;
+
+      brbFullHours.textContent = hoursText;
+      brbFullMinutes.textContent = minutesText;
+      brbFullSeconds.textContent = secondsText;
+    }
+
+    function renderFundraiser() {
+      const pct = Math.max(
+        0,
+        Math.min(100, (lastGood.raised / lastGood.goal) * 100)
+      );
+
+      fundRaised.textContent = money.format(lastGood.raised);
+      fundGoal.textContent = wholeMoney.format(lastGood.goal);
+      fundFill.style.width = pct.toFixed(4) + "%";
+
+      compactRaised.textContent = money.format(lastGood.raised);
+      compactGoal.textContent = wholeMoney.format(lastGood.goal);
+      compactFill.style.width = pct.toFixed(4) + "%";
+
+      state.fundraiser.raised = lastGood.raised;
+      state.fundraiser.goal = lastGood.goal;
+      state.fundraiser.playerCount = lastGood.players.length;
+
+      renderBrbFundraiser();
+      renderBrbTopPlayers(lastGood.players);
+    }
+
+    function settleFundraiserBuild() {
+      setTimeout(() => {
+        fundraiserGraphic.classList.remove("booting");
+        fundraiserGraphic.classList.add("built");
+
+        if (state.fundraiser.animation === "build") {
+          state.fundraiser.animation = "idle";
+          publishState();
+        }
+      }, 1950);
+    }
+
+    function forceFundraiserBuilt() {
+      fundraiserGraphic.classList.remove("booting");
+      fundraiserGraphic.classList.add("built");
+    }
+
+    function renderTickerItems(players) {
+      tickerTrack.replaceChildren();
+
+      players.forEach((player, index) => {
+        const item = document.createElement("span");
+        item.className = "ticker-item";
+
+        const name = document.createElement("span");
+        name.textContent = player.name;
+
+        const amount = document.createElement("span");
+        amount.className = "ticker-amount";
+        amount.textContent = money.format(player.amount);
+
+        item.append(name, amount);
+        tickerTrack.appendChild(item);
+
+        if (index !== players.length - 1) {
+          const separator = document.createElement("span");
+          separator.className = "ticker-separator";
+          separator.setAttribute("aria-hidden", "true");
+          tickerTrack.appendChild(separator);
+        }
+      });
+    }
+
+    function clearTickerTimers() {
+      tickerTimers.forEach(clearTimeout);
+      tickerTimers = [];
+    }
+
+    function addTickerTimer(fn, delay) {
+      const id = setTimeout(fn, delay);
+      tickerTimers.push(id);
+      return id;
+    }
+
+    function clearTickerSchedule() {
+      if (tickerScheduleTimer) {
+        clearTimeout(tickerScheduleTimer);
+        tickerScheduleTimer = null;
+      }
+    }
+
+    function scheduleTicker(delayMs) {
+      clearTickerSchedule();
+      state.fundraiser.nextAnimationAt = Date.now() + delayMs;
+      publishState();
+
+      tickerScheduleTimer = setTimeout(() => {
+        if (
+          state.fundraiser.visible &&
+          state.lowerThird.mode === "standard" &&
+          !state.brb.visible
+        ) {
+          runTicker("auto");
+        } else {
+          scheduleTicker(TICKER_INTERVAL);
+        }
+      }, delayMs);
+    }
+
+    function restoreFundraiserStats(animated = true) {
+      clearTickerTimers();
+      endTickerLinkedCountdownPromo();
+
+      tickerLayer.classList.remove("active", "intro", "ticker-exit");
+      tickerStinger.classList.remove("intro");
+      tickerTrack.style.transition = "none";
+      tickerTrack.style.transform = "translateX(0px)";
+      tickerTrack.replaceChildren();
+
+      fundStats.classList.remove(
+        "ticker-hidden",
+        "stats-return"
+      );
+
+      if (animated) {
+        void fundStats.offsetWidth;
+        fundStats.classList.add("stats-return");
+
+        addTickerTimer(() => {
+          fundStats.classList.remove("stats-return");
+          state.fundraiser.animation = "idle";
+          publishState();
+        }, 320);
+      } else {
+        state.fundraiser.animation = "idle";
+        publishState();
+      }
+    }
+
+    function stopTicker() {
+      if (
+        state.fundraiser.animation !== "ticker" &&
+        state.fundraiser.animation !== "build"
+      ) {
+        return;
+      }
+
+      forceFundraiserBuilt();
+
+      if (state.fundraiser.animation === "build") {
+        state.fundraiser.animation = "idle";
+        publishState();
+        return;
+      }
+
+      clearTickerTimers();
+      tickerLayer.classList.remove("intro");
+      tickerLayer.classList.add("ticker-exit");
+
+      addTickerTimer(() => {
+        restoreFundraiserStats(true);
+      }, 185);
+    }
+
+    function runTicker(source = "manual") {
+      if (state.lowerThird.mode === "compact") return;
+      if (!state.fundraiser.visible) return;
+      if (!lastGood.players || !lastGood.players.length) return;
+
+      clearTickerSchedule();
+      clearTickerTimers();
+      forceFundraiserBuilt();
+      restoreFundraiserStats(false);
+
+      state.fundraiser.animation = "ticker";
+      scheduleTicker(TICKER_INTERVAL);
+      publishState();
+
+      /*
+        Coordinate the countdown bug with the Top Players package.
+        The promo begins 1.4s after this ticker command, matching the
+        hand-timed reference clip, and is held until ticker completion.
+      */
+      startTickerLinkedCountdownPromo();
+
+      renderTickerItems(lastGood.players);
+
+      fundStats.classList.add("ticker-hidden");
+
+      addTickerTimer(() => {
+        tickerStinger.classList.remove("intro");
+        void tickerStinger.offsetWidth;
+        tickerStinger.classList.add("intro");
+      }, 110);
+
+      addTickerTimer(() => {
+        tickerLayer.classList.remove("ticker-exit", "intro");
+        tickerLayer.classList.add("active", "intro");
+
+        const viewportWidth = tickerViewport.clientWidth;
+        const trackWidth = tickerTrack.scrollWidth;
+        const startX = viewportWidth + 30;
+        const endX = -trackWidth - 30;
+        const distance = startX - endX;
+
+        const durationMs = Math.max(
+          12000,
+          Math.round(
+            (distance / TICKER_SPEED_PX_PER_SEC) * 1000
+          )
+        );
+
+        tickerTrack.style.transition = "none";
+        tickerTrack.style.transform = `translateX(${startX}px)`;
+
+        addTickerTimer(() => {
+          tickerStinger.classList.remove("intro");
+          tickerTrack.style.transition =
+            `transform ${durationMs}ms linear`;
+          tickerTrack.style.transform = `translateX(${endX}px)`;
+
+          addTickerTimer(() => {
+            tickerLayer.classList.remove("intro");
+            tickerLayer.classList.add("ticker-exit");
+
+            addTickerTimer(() => {
+              restoreFundraiserStats(true);
+            }, 190);
+          }, durationMs + 100);
+
+        }, 290);
+
+      }, 610);
+    }
+
+    function rawToText(raw) {
+      if (/<(?:html|body|div|section|h[1-6]|p|span)\b/i.test(raw)) {
+        try {
+          const doc = new DOMParser().parseFromString(raw, "text/html");
+          return doc.body ? doc.body.innerText : raw;
+        } catch (_) {}
+      }
+      return raw;
+    }
+
+    function parseOverall(text) {
+      const match = text.match(
+        /\$([\d,]+(?:\.\d{2})?)\s+of\s+\$([\d,]+(?:\.\d{2})?)\s+goal/i
+      );
+
+      if (!match) {
+        throw new Error("Fundraiser total not found");
+      }
+
+      const raised = Number(match[1].replace(/,/g, ""));
+      const goal = Number(match[2].replace(/,/g, ""));
+
+      if (
+        !Number.isFinite(raised) ||
+        !Number.isFinite(goal) ||
+        raised < 0 ||
+        goal < 50000
+      ) {
+        throw new Error("Fundraiser total invalid");
+      }
+
+      return { raised, goal };
+    }
+
+    function parseTopPlayers(raw) {
+      const markdownSection = raw.match(
+        /(?:^|\n)##\s*Top Players\s*([\s\S]*?)(?=(?:^|\n)##\s*Select a Player)/im
+      );
+
+      if (markdownSection) {
+        const players = [];
+        const re =
+          /(?:^|\n)###\s*([^\n]+)[\s\S]*?Raised\s+\$([\d,]+(?:\.\d{2})?)/gim;
+
+        let match;
+        while ((match = re.exec(markdownSection[1])) !== null) {
+          const name = match[1].trim();
+          const amount = Number(match[2].replace(/,/g, ""));
+
+          if (
+            name &&
+            Number.isFinite(amount) &&
+            amount >= 0
+          ) {
+            players.push({ name, amount });
+          }
+        }
+
+        if (players.length) return players;
+      }
+
+      try {
+        const doc =
+          new DOMParser().parseFromString(raw, "text/html");
+        const all = [...doc.body.querySelectorAll("*")];
+
+        const start = all.findIndex(
+          el =>
+            el.tagName === "H2" &&
+            el.textContent.trim().toLowerCase() === "top players"
+        );
+
+        if (start >= 0) {
+          let end = all.length;
+
+          for (let i = start + 1; i < all.length; i++) {
+            if (
+              all[i].tagName === "H2" &&
+              all[i].textContent.trim().toLowerCase() ===
+                "select a player"
+            ) {
+              end = i;
+              break;
+            }
+          }
+
+          const players = [];
+          const headings = all
+            .slice(start + 1, end)
+            .filter(el => el.tagName === "H3");
+
+          for (const h3 of headings) {
+            const name = h3.textContent.trim();
+            let node = h3;
+            let amount = null;
+
+            for (
+              let depth = 0;
+              depth < 7 && node;
+              depth++, node = node.parentElement
+            ) {
+              const match = (node.textContent || "").match(
+                /Raised\s+\$([\d,]+(?:\.\d{2})?)/i
+              );
+
+              if (match) {
+                amount = Number(match[1].replace(/,/g, ""));
+                break;
+              }
+            }
+
+            if (
+              name &&
+              Number.isFinite(amount) &&
+              amount >= 0
+            ) {
+              players.push({ name, amount });
+            }
+          }
+
+          if (players.length) return players;
+        }
+      } catch (_) {}
+
+      throw new Error("Top Players not found");
+    }
+
+    async function fetchText(url) {
+      const controller = new AbortController();
+      const timeout = setTimeout(
+        () => controller.abort(),
+        REQUEST_TIMEOUT
+      );
+
+      try {
+        const response = await fetch(url, {
+          cache: "no-store",
+          signal: controller.signal
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        return await response.text();
+      } finally {
+        clearTimeout(timeout);
+      }
+    }
+
+    async function fetchFundraiserPage() {
+      const cacheBust = Date.now();
+
+      /*
+        PRIMARY PATH:
+        The H4H localhost server fetches Play For A Purpose server-side.
+        That makes this request same-origin from OBS and removes browser
+        CORS from the live-data path entirely.
+
+        This is deliberately preferred over public CORS/readability proxies,
+        because we need fresh show-critical data rather than a cached copy.
+      */
+      try {
+        return await fetchText(
+          `/api/playforapurpose?overlay_refresh=${cacheBust}`
+        );
+      } catch (localProxyError) {
+        /*
+          Emergency fallbacks only. Direct browser fetch may be rejected by
+          the site's CORS policy; Jina may be cached. Neither is considered
+          the primary live-show data path.
+        */
+        try {
+          return await fetchText(
+            `https://playforapurpose.org/?overlay_refresh=${cacheBust}`
+          );
+        } catch (_) {
+          return await fetchText(
+            `https://r.jina.ai/https://playforapurpose.org/?overlay_refresh=${cacheBust}`
+          );
+        }
+      }
+    }
+
+    function scheduleNextSync(delayMs = SYNC_INTERVAL) {
+      if (syncTimer) clearTimeout(syncTimer);
+
+      state.fundraiser.sync.nextSyncAt =
+        Date.now() + delayMs;
+
+      publishState();
+
+      syncTimer = setTimeout(() => {
+        syncNow();
+      }, delayMs);
+    }
+
+    async function syncNow() {
+      if (syncInFlight) return;
+
+      if (syncTimer) {
+        clearTimeout(syncTimer);
+        syncTimer = null;
+      }
+
+      syncInFlight = true;
+      state.fundraiser.sync.inFlight = true;
+      state.fundraiser.sync.lastAttemptAt = Date.now();
+      state.fundraiser.sync.nextSyncAt = null;
+      publishState();
+
+      try {
+        const raw = await fetchFundraiserPage();
+        const plain = rawToText(raw);
+        const overall = parseOverall(plain);
+
+        let players = null;
+        try {
+          players = parseTopPlayers(raw);
+        } catch (_) {
+          players = lastGood.players;
+        }
+
+        lastGood = {
+          raised: overall.raised,
+          goal: overall.goal,
+          players:
+            players && players.length
+              ? players
+              : lastGood.players,
+          lastSuccessAt: Date.now()
+        };
+
+        lsWrite(DATA_KEY, lastGood);
+        renderFundraiser();
+
+        state.fundraiser.sync.ok = true;
+        state.fundraiser.sync.lastSuccessAt =
+          lastGood.lastSuccessAt;
+        state.fundraiser.sync.offlineSinceAt = null;
+        state.fundraiser.sync.error = null;
+
+      } catch (error) {
+        state.fundraiser.sync.ok = false;
+
+        if (!state.fundraiser.sync.offlineSinceAt) {
+          state.fundraiser.sync.offlineSinceAt = Date.now();
+        }
+
+        state.fundraiser.sync.error =
+          error && error.message
+            ? error.message
+            : "Page not responding";
+
+        renderFundraiser();
+
+      } finally {
+        syncInFlight = false;
+        state.fundraiser.sync.inFlight = false;
+        scheduleNextSync(SYNC_INTERVAL);
+        publishState();
+      }
+    }
+
+    function processCommand(command) {
+      if (!command || !command.id) return;
+      if (command.id === lastCommandId) return;
+
+      lastCommandId = command.id;
+
+      switch (command.action) {
+        case "countdown.run":
+          runCountdownPromo("manual");
+          break;
+
+        case "countdown.stop":
+          stopCountdownPromo();
+          break;
+
+        case "countdown.toggle":
+          setCountdownVisibility(
+            !state.countdown.visible
+          );
+          break;
+
+        case "countdown.show":
+          setCountdownVisibility(true);
+          break;
+
+        case "countdown.hide":
+          setCountdownVisibility(false);
+          break;
+
+        case "fundraiser.runTicker":
+          runTicker("manual");
+          break;
+
+        case "fundraiser.stop":
+          stopTicker();
+          break;
+
+        case "fundraiser.toggle":
+          setFundraiserVisibility(
+            !state.fundraiser.visible
+          );
+          break;
+
+        case "fundraiser.show":
+          setFundraiserVisibility(true);
+          break;
+
+        case "fundraiser.hide":
+          setFundraiserVisibility(false);
+          break;
+
+        case "fundraiser.syncNow":
+          syncNow();
+          break;
+
+        case "brb.showCamera":
+          showBrb("camera");
+          break;
+
+        case "brb.showFull":
+          showBrb("full");
+          break;
+
+        case "brb.hide":
+          hideBrb();
+          break;
+
+        case "brb.cut":
+          cutBrbTransition();
+          break;
+
+        case "brb.setMessage":
+          setBrbMessage(command.value);
+          break;
+
+        case "lowerThird.standard":
+          setLowerThirdMode("standard");
+          break;
+
+        case "lowerThird.compact":
+          setLowerThirdMode("compact");
+          break;
+
+        case "theme.red":
+          applyTheme("red");
+          break;
+
+        case "theme.celtics":
+          applyTheme("celtics");
+          break;
+
+        case "dsk.configure":
+          configureDsk(command.value || {});
+          break;
+
+        case "dsk.configurePrepare":
+          configureDsk(command.value || {});
+          setTimeout(() => {
+            ensureDskCameraScene().catch(() => {});
+          }, 250);
+          break;
+
+        case "dsk.prepare":
+          ensureDskCameraScene().catch(() => {});
+          break;
+
+        case "dsk.release":
+          releaseCameraDsk().catch(() => {});
+          break;
+      }
+
+      publishState();
+    }
+
+    if (channel) {
+      channel.addEventListener("message", event => {
+        const msg = event.data;
+        if (msg && msg.type === "command") {
+          processCommand(msg.command);
+        }
+      });
+    }
+
+    setInterval(() => {
+      const command = lsRead(COMMAND_KEY);
+      if (command) processCommand(command);
+    }, 150);
+
+    setInterval(publishState, 500);
+
+    applyTheme(state.theme, false);
+    brbCameraScreen.classList.add("dsk-shuttered");
+
+    /*
+      At startup, honor the selected lower-third layout. Standard mode uses
+      the original independent builds; Action Compact uses the combined
+      centered scorebug build.
+    */
+    if (state.lowerThird.mode === "compact") {
+      programView.classList.add("compact-lt-mode");
+
+      setCountdownVisibility(
+        state.countdown.visible,
+        false
+      );
+
+      setFundraiserVisibility(
+        state.fundraiser.visible,
+        false
+      );
+
+      showCompactLowerThird(
+        state.countdown.visible || state.fundraiser.visible
+      );
+    } else {
+      setCountdownVisibility(
+        state.countdown.visible,
+        state.countdown.visible
+      );
+
+      setFundraiserVisibility(
+        state.fundraiser.visible,
+        state.fundraiser.visible
+      );
+    }
+
+    buildHoldingRails();
+    renderBrbMessage();
+    renderFundraiser();
+    updateEventCountdown();
+    setInterval(updateEventCountdown, 250);
+
+    scheduleCountdown(COUNTDOWN_INITIAL_DELAY);
+    scheduleTicker(TICKER_INITIAL_DELAY);
+
+    /*
+      Fundraiser visibility now owns the show-build settle timer.
+    */
+
+    syncNow();
+
+    if (
+      prefs.dsk.enabled &&
+      prefs.dsk.cameraSource &&
+      prefs.dsk.keyerName
+    ) {
+      connectObs()
+        .then(() => ensureDskCameraScene())
+        .catch(() => {});
+    }
+
+    publishState();
+  }
+
+  /* ============================================================
+     PANEL CONTROLLER
+     ============================================================ */
+
+  function initPanel() {
+    const channel = createChannel();
+
+    const overlayLinkDot =
+      document.getElementById("overlayLinkDot");
+    const overlayLinkText =
+      document.getElementById("overlayLinkText");
+
+    const themeStatus = document.getElementById("themeStatus");
+    const themeRedBtn = document.getElementById("themeRedBtn");
+    const themeCelticsBtn = document.getElementById("themeCelticsBtn");
+
+    const lowerThirdStatus = document.getElementById("lowerThirdStatus");
+    const lowerThirdStandardBtn = document.getElementById("lowerThirdStandardBtn");
+    const lowerThirdCompactBtn = document.getElementById("lowerThirdCompactBtn");
+
+    const brbVisibility = document.getElementById("brbVisibility");
+    const brbPanelState = document.getElementById("brbPanelState");
+    const brbMessageInput = document.getElementById("brbMessageInput");
+    const brbApplyBtn = document.getElementById("brbApplyBtn");
+    const brbCameraBtn = document.getElementById("brbCameraBtn");
+    const brbFullBtn = document.getElementById("brbFullBtn");
+    const brbHideBtn = document.getElementById("brbHideBtn");
+    const brbCutBtn = document.getElementById("brbCutBtn");
+
+    const dskBadge = document.getElementById("dskBadge");
+    const dskDot = document.getElementById("dskDot");
+    const dskTitle = document.getElementById("dskTitle");
+    const dskSub = document.getElementById("dskSub");
+    const dskWsUrl = document.getElementById("dskWsUrl");
+    const dskWsPassword = document.getElementById("dskWsPassword");
+    const dskKeyerName = document.getElementById("dskKeyerName");
+    const dskSceneName = document.getElementById("dskSceneName");
+    const dskCameraSource = document.getElementById("dskCameraSource");
+    const dskAutoEnable = document.getElementById("dskAutoEnable");
+    const dskSavePrepareBtn = document.getElementById("dskSavePrepareBtn");
+    const dskReleaseBtn = document.getElementById("dskReleaseBtn");
+
+    const countdownVisibility =
+      document.getElementById("countdownVisibility");
+    const countdownNext =
+      document.getElementById("countdownNext");
+    const countdownPanelState =
+      document.getElementById("countdownPanelState");
+    const countdownRunBtn =
+      document.getElementById("countdownRunBtn");
+    const countdownStopBtn =
+      document.getElementById("countdownStopBtn");
+    const countdownVisibilityBtn =
+      document.getElementById("countdownVisibilityBtn");
+
+    const fundVisibility =
+      document.getElementById("fundVisibility");
+    const fundNext =
+      document.getElementById("fundNext");
+    const fundPanelState =
+      document.getElementById("fundPanelState");
+    const fundRunBtn =
+      document.getElementById("fundRunBtn");
+    const fundStopBtn =
+      document.getElementById("fundStopBtn");
+    const fundVisibilityBtn =
+      document.getElementById("fundVisibilityBtn");
+
+    const syncDot = document.getElementById("syncDot");
+    const syncTitle =
+      document.getElementById("syncTitle");
+    const syncSub =
+      document.getElementById("syncSub");
+    const nextSync =
+      document.getElementById("nextSync");
+    const syncAgeLabel =
+      document.getElementById("syncAgeLabel");
+    const syncAge =
+      document.getElementById("syncAge");
+    const syncNowBtn =
+      document.getElementById("syncNowBtn");
+
+    let latestState = null;
+
+    const panelPrefs = lsRead(PREF_KEY) || {};
+    const panelDsk = Object.assign(
+      {
+        enabled: true,
+        url: "ws://127.0.0.1:4455",
+        password: "",
+        keyerName: "DSK 1",
+        sceneName: "H4H BRB Camera",
+        cameraSource: ""
+      },
+      panelPrefs.dsk || {}
+    );
+
+    dskWsUrl.value = panelDsk.url;
+    dskWsPassword.value = panelDsk.password;
+    dskKeyerName.value = panelDsk.keyerName;
+    dskSceneName.value = panelDsk.sceneName;
+    dskCameraSource.value = panelDsk.cameraSource;
+    dskAutoEnable.checked = panelDsk.enabled !== false;
+
+    function sendCommand(action, value = null) {
+      const command = {
+        id: uid(),
+        action,
+        value,
+        sentAt: Date.now()
+      };
+
+      lsWrite(COMMAND_KEY, command);
+
+      if (channel) {
+        try {
+          channel.postMessage({
+            type: "command",
+            command
+          });
+        } catch (_) {}
+      }
+    }
+
+    function setBadge(el, visible) {
+      el.textContent = visible ? "VISIBLE" : "HIDDEN";
+      el.classList.toggle("on", visible);
+      el.classList.toggle("off", !visible);
+    }
+
+    function readableCountdownState(value) {
+      if (value === "promo") return "PROMO LIVE";
+      if (value === "promo-linked") return "TOP PLAYERS PROMO";
+      if (value === "show") return "BUILDING IN";
+      if (value === "hide") return "BUILDING OUT";
+      return "COUNTDOWN";
+    }
+
+    function readableFundState(value) {
+      if (value === "ticker") return "TOP PLAYERS LIVE";
+      if (value === "build" || value === "show") return "BUILDING IN";
+      if (value === "hide") return "BUILDING OUT";
+      return "FUNDS RAISED";
+    }
+
+    function renderPanel() {
+      const now = Date.now();
+      const state = latestState || lsRead(STATE_KEY);
+
+      if (state) latestState = state;
+
+      const linked =
+        state &&
+        Number.isFinite(state.updatedAt) &&
+        now - state.updatedAt < 2500;
+
+      overlayLinkDot.className =
+        "status-dot " + (linked ? "green" : "red");
+
+      overlayLinkText.textContent =
+        linked ? "Overlay linked" : "Overlay offline";
+
+      if (!state) {
+        countdownNext.textContent = "--:--";
+        fundNext.textContent = "--:--";
+        nextSync.textContent = "--:--";
+        syncAge.textContent = "---";
+        return;
+      }
+
+      const celticsTheme = state.theme === "celtics";
+      document.body.classList.toggle("theme-celtics", celticsTheme);
+      themeStatus.textContent =
+        celticsTheme ? "NAVY + CELTICS GREEN" : "NAVY + CANDY RED";
+      themeRedBtn.classList.toggle("active", !celticsTheme);
+      themeCelticsBtn.classList.toggle("active", celticsTheme);
+      themeRedBtn.disabled = !linked;
+      themeCelticsBtn.disabled = !linked;
+
+      const compactLowerThirdMode =
+        state.lowerThird && state.lowerThird.mode === "compact";
+
+      lowerThirdStatus.textContent =
+        compactLowerThirdMode ? "ACTION COMPACT" : "STANDARD";
+
+      lowerThirdStandardBtn.classList.toggle(
+        "active",
+        !compactLowerThirdMode
+      );
+      lowerThirdCompactBtn.classList.toggle(
+        "active",
+        compactLowerThirdMode
+      );
+
+      const lowerThirdSwitching =
+        state.lowerThird &&
+        state.lowerThird.transition !== "idle";
+
+      lowerThirdStandardBtn.disabled =
+        !linked || lowerThirdSwitching;
+      lowerThirdCompactBtn.disabled =
+        !linked || lowerThirdSwitching;
+
+      const dsk = state.dsk || {};
+
+      dskDot.className =
+        "status-dot " +
+        (dsk.connected ? "green" : dsk.error ? "red" : "");
+
+      if (dsk.active) {
+        dskBadge.textContent = "LIVE";
+        dskBadge.classList.add("on");
+        dskBadge.classList.remove("off");
+        dskTitle.textContent = "Camera DSK live";
+      } else if (dsk.prepared && dsk.connected) {
+        dskBadge.textContent = "READY";
+        dskBadge.classList.add("on");
+        dskBadge.classList.remove("off");
+        dskTitle.textContent = "DSK ready";
+      } else if (dsk.connecting) {
+        dskBadge.textContent = "CONNECTING";
+        dskBadge.classList.remove("on", "off");
+        dskTitle.textContent = "Connecting to OBS";
+      } else {
+        dskBadge.textContent = "OFFLINE";
+        dskBadge.classList.remove("on");
+        dskBadge.classList.add("off");
+        dskTitle.textContent = dsk.error
+          ? "DSK not ready"
+          : "Not connected";
+      }
+
+      if (dsk.error) {
+        dskSub.textContent = dsk.error;
+      } else if (dsk.prepared) {
+        dskSub.textContent =
+          `${dsk.keyerName || "DSK"} · ${dsk.sceneName || "Camera scene"} · ` +
+          `${dsk.cameraSource || "camera source"}`;
+      } else {
+        dskSub.textContent =
+          "Save + Prepare creates/updates the transparent DSK camera scene at X 70 / Y 150 / 1120×630.";
+      }
+
+      dskSavePrepareBtn.disabled =
+        !linked || !!dsk.connecting;
+      dskReleaseBtn.disabled =
+        !linked || !dsk.active;
+
+      setBadge(brbVisibility, state.brb.visible);
+
+      if (document.activeElement !== brbMessageInput) {
+        brbMessageInput.value = state.brb.message || "We'll Be Right Back";
+      }
+
+      if (state.brb.transition !== "idle") {
+        brbPanelState.textContent =
+          state.brb.transition === "hiding"
+            ? "TRANSITIONING OUT"
+            : "TRANSITIONING IN";
+      } else if (!state.brb.visible) {
+        brbPanelState.textContent = "HIDDEN";
+      } else {
+        brbPanelState.textContent =
+          state.brb.mode === "full" ? "FULL GRAPHIC" : "CAMERA VIEW";
+      }
+
+      brbCameraBtn.disabled = !linked || state.brb.transition !== "idle";
+      brbFullBtn.disabled = !linked || state.brb.transition !== "idle";
+      brbHideBtn.disabled =
+        !linked || (!state.brb.visible && state.brb.transition === "idle");
+      brbCutBtn.disabled = !linked || state.brb.transition === "idle";
+      brbApplyBtn.disabled = !linked;
+
+      setBadge(
+        countdownVisibility,
+        state.countdown.visible
+      );
+
+      countdownNext.textContent =
+        state.countdown.eventComplete
+          ? "DONE"
+          : formatSpan(
+              state.countdown.nextAnimationAt - now,
+              false
+            );
+
+      countdownPanelState.textContent =
+        state.countdown.visible
+          ? readableCountdownState(
+              state.countdown.animation
+            )
+          : "HIDDEN";
+
+      countdownRunBtn.disabled =
+        !linked ||
+        compactLowerThirdMode ||
+        !state.countdown.visible ||
+        state.brb.visible ||
+        state.countdown.animation !== "idle";
+
+      countdownStopBtn.disabled =
+        !linked ||
+        state.countdown.animation === "idle";
+
+      countdownVisibilityBtn.disabled =
+        !linked ||
+        state.countdown.animation === "show" ||
+        state.countdown.animation === "hide";
+
+      countdownVisibilityBtn.textContent =
+        state.countdown.visible ? "Hide" : "Show";
+
+      setBadge(
+        fundVisibility,
+        state.fundraiser.visible
+      );
+
+      fundNext.textContent =
+        formatSpan(
+          state.fundraiser.nextAnimationAt - now,
+          false
+        );
+
+      fundPanelState.textContent =
+        state.fundraiser.visible
+          ? readableFundState(
+              state.fundraiser.animation
+            )
+          : "HIDDEN";
+
+      fundRunBtn.disabled =
+        !linked ||
+        compactLowerThirdMode ||
+        !state.fundraiser.visible ||
+        state.brb.visible ||
+        state.fundraiser.animation !== "idle";
+
+      fundStopBtn.disabled =
+        !linked ||
+        state.fundraiser.animation === "idle";
+
+      fundVisibilityBtn.disabled =
+        !linked ||
+        state.fundraiser.animation === "show" ||
+        state.fundraiser.animation === "hide";
+
+      fundVisibilityBtn.textContent =
+        state.fundraiser.visible ? "Hide" : "Show";
+
+      const sync = state.fundraiser.sync;
+
+      if (sync.ok === true) {
+        syncDot.className = "status-dot green";
+        syncTitle.textContent =
+          sync.inFlight
+            ? "Communicating · syncing"
+            : "Communicating";
+
+        syncSub.textContent =
+          `${new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          }).format(state.fundraiser.raised)} raised · ` +
+          `${state.fundraiser.playerCount} Top Players loaded`;
+
+        syncAgeLabel.textContent = "Last Good";
+        syncAge.textContent =
+          sync.lastSuccessAt
+            ? formatSpan(
+                now - sync.lastSuccessAt,
+                true
+              ) + " AGO"
+            : "---";
+
+      } else if (sync.ok === false) {
+        syncDot.className = "status-dot red";
+        syncTitle.textContent =
+          sync.inFlight
+            ? "Retrying"
+            : "Page not responding";
+
+        syncSub.textContent =
+          "Last valid fundraiser values are being retained on air.";
+
+        syncAgeLabel.textContent = "Offline For";
+        syncAge.textContent =
+          sync.offlineSinceAt
+            ? formatSpan(
+                now - sync.offlineSinceAt,
+                true
+              )
+            : "---";
+
+      } else {
+        syncDot.className = "status-dot";
+        syncTitle.textContent =
+          sync.inFlight ? "Checking page" : "Waiting for sync";
+        syncSub.textContent =
+          "Cached fundraiser values remain on air until a valid update is received.";
+        syncAgeLabel.textContent = "Last Good";
+        syncAge.textContent = "---";
+      }
+
+      nextSync.textContent =
+        sync.inFlight
+          ? "NOW"
+          : sync.nextSyncAt
+            ? formatSpan(
+                sync.nextSyncAt - now,
+                false
+              )
+            : "--:--";
+
+      syncNowBtn.disabled =
+        !linked || !!sync.inFlight;
+    }
+
+    lowerThirdStandardBtn.addEventListener(
+      "click",
+      () => sendCommand("lowerThird.standard")
+    );
+
+    lowerThirdCompactBtn.addEventListener(
+      "click",
+      () => sendCommand("lowerThird.compact")
+    );
+
+    themeRedBtn.addEventListener(
+      "click",
+      () => sendCommand("theme.red")
+    );
+
+    themeCelticsBtn.addEventListener(
+      "click",
+      () => sendCommand("theme.celtics")
+    );
+
+    function currentDskConfigFromPanel() {
+      return {
+        enabled: !!dskAutoEnable.checked,
+        url: dskWsUrl.value.trim() || "ws://127.0.0.1:4455",
+        password: dskWsPassword.value,
+        keyerName: dskKeyerName.value.trim() || "DSK 1",
+        sceneName: dskSceneName.value.trim() || "H4H BRB Camera",
+        cameraSource: dskCameraSource.value.trim()
+      };
+    }
+
+    dskSavePrepareBtn.addEventListener(
+      "click",
+      () => sendCommand(
+        "dsk.configurePrepare",
+        currentDskConfigFromPanel()
+      )
+    );
+
+    dskReleaseBtn.addEventListener(
+      "click",
+      () => sendCommand("dsk.release")
+    );
+
+    function applyBrbMessage() {
+      sendCommand("brb.setMessage", brbMessageInput.value);
+    }
+
+    brbApplyBtn.addEventListener("click", applyBrbMessage);
+    brbMessageInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        applyBrbMessage();
+      }
+    });
+
+    brbCameraBtn.addEventListener(
+      "click",
+      () => sendCommand("brb.showCamera")
+    );
+
+    brbFullBtn.addEventListener(
+      "click",
+      () => sendCommand("brb.showFull")
+    );
+
+    brbHideBtn.addEventListener(
+      "click",
+      () => sendCommand("brb.hide")
+    );
+
+    brbCutBtn.addEventListener(
+      "click",
+      () => sendCommand("brb.cut")
+    );
+
+    countdownRunBtn.addEventListener(
+      "click",
+      () => sendCommand("countdown.run")
+    );
+
+    countdownStopBtn.addEventListener(
+      "click",
+      () => sendCommand("countdown.stop")
+    );
+
+    countdownVisibilityBtn.addEventListener(
+      "click",
+      () => sendCommand("countdown.toggle")
+    );
+
+    fundRunBtn.addEventListener(
+      "click",
+      () => sendCommand("fundraiser.runTicker")
+    );
+
+    fundStopBtn.addEventListener(
+      "click",
+      () => sendCommand("fundraiser.stop")
+    );
+
+    fundVisibilityBtn.addEventListener(
+      "click",
+      () => sendCommand("fundraiser.toggle")
+    );
+
+    syncNowBtn.addEventListener(
+      "click",
+      () => sendCommand("fundraiser.syncNow")
+    );
+
+    if (channel) {
+      channel.addEventListener("message", event => {
+        const msg = event.data;
+        if (msg && msg.type === "state") {
+          latestState = msg.state;
+          renderPanel();
+        }
+      });
+    }
+
+    setInterval(() => {
+      const stored = lsRead(STATE_KEY);
+
+      if (
+        stored &&
+        (
+          !latestState ||
+          stored.updatedAt >= latestState.updatedAt
+        )
+      ) {
+        latestState = stored;
+      }
+
+      renderPanel();
+    }, 250);
+
+    renderPanel();
+  }
+
+  if (PANEL_MODE) {
+    initPanel();
+  } else {
+    initProgram();
+  }
+})();
+</script>
+</body>
+</html>

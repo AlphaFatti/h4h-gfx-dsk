@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1920, initial-scale=1">
+<title>Hoops for Hope Countdown</title>
+<style>
+  :root {
+    --navy: #071B33;
+    --navy-2: #0B2748;
+    --white: #FFFFFF;
+    --muted: #B8C7D9;
+    --candy-red: #E63946;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  .canvas {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+    background: transparent;
+    overflow: hidden;
+  }
+
+  .bug {
+    position: absolute;
+    left: 72px;
+    bottom: 72px;
+    width: 610px;
+    min-height: 230px;
+    background: var(--navy);
+    border-left: 12px solid var(--candy-red);
+    color: var(--white);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 26px 30px 24px 30px;
+  }
+
+  .bug::after {
+    content: "";
+    position: absolute;
+    left: 30px;
+    right: 30px;
+    top: 83px;
+    height: 2px;
+    background: var(--candy-red);
+  }
+
+  .eyebrow {
+    font-size: 22px;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .event {
+    margin-top: 8px;
+    font-size: 36px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+
+  .countdown-wrap {
+    margin-top: 28px;
+    display: flex;
+    align-items: flex-end;
+    gap: 18px;
+  }
+
+  .countdown {
+    font-size: 66px;
+    line-height: 0.92;
+    font-weight: 900;
+    letter-spacing: 0.01em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .suffix {
+    padding-bottom: 6px;
+    font-size: 17px;
+    line-height: 1.05;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--candy-red);
+    white-space: nowrap;
+  }
+
+  .labels {
+    display: grid;
+    grid-template-columns: 108px 108px 108px 108px;
+    gap: 0;
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .complete {
+    display: none;
+    margin-top: 29px;
+    font-size: 50px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--white);
+  }
+
+  .complete span {
+    color: var(--candy-red);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+<main class="canvas" aria-label="Hoops for Hope countdown graphic">
+  <section class="bug">
+    <div>
+      <div class="eyebrow">24-Hour Event</div>
+      <div class="event">Hoops for Hope</div>
+    </div>
+
+    <div id="activeCountdown">
+      <div class="countdown-wrap">
+        <div class="countdown" id="countdown">00:00:00:00</div>
+        <div class="suffix">Until<br>7:00 AM</div>
+      </div>
+      <div class="labels" aria-hidden="true">
+        <div>Days</div>
+        <div>Hours</div>
+        <div>Minutes</div>
+        <div>Seconds</div>
+      </div>
+    </div>
+
+    <div class="complete" id="completeMessage">
+      Event <span>Complete</span>
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+  // Saturday, October 10, 2026 at 7:00 AM Eastern Daylight Time (UTC-4).
+  // Uses a fixed UTC offset so the file remains fully offline and deterministic.
+  const TARGET = new Date("2026-10-10T07:00:00-04:00").getTime();
+
+  const countdownEl = document.getElementById("countdown");
+  const activeEl = document.getElementById("activeCountdown");
+  const completeEl = document.getElementById("completeMessage");
+
+  const pad2 = (n) => String(n).padStart(2, "0");
+
+  function updateCountdown() {
+    const now = Date.now();
+    let diff = TARGET - now;
+
+    if (diff <= 0) {
+      countdownEl.textContent = "00:00:00:00";
+      activeEl.style.display = "none";
+      completeEl.style.display = "block";
+      return;
+    }
+
+    const totalSeconds = Math.floor(diff / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    countdownEl.textContent =
+      `${pad2(days)}:${pad2(hours)}:${pad2(minutes)}:${pad2(seconds)}`;
+  }
+
+  updateCountdown();
+  setInterval(updateCountdown, 250);
+})();
+</script>
+</body>
+</html>

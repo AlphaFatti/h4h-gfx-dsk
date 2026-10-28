@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1200, initial-scale=1">
+<title>Hoops for Hope Live Fundraiser Bar</title>
+<style>
+  :root {
+    --navy: #071B33;
+    --white: #FFFFFF;
+    --muted: #B8C7D9;
+    --track: #29425E;
+    --candy-red: #E63946;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    width: 1200px;
+    height: 150px;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  .fundraiser {
+    width: 1200px;
+    height: 150px;
+    background: var(--navy);
+    color: var(--white);
+    padding: 17px 23px 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .top {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 28px;
+    min-width: 0;
+  }
+
+  .block { min-width: 0; }
+  .goal { text-align: right; }
+
+  .label {
+    margin-bottom: 4px;
+    font-size: 12px;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .raised-value {
+    font-size: 45px;
+    line-height: .94;
+    font-weight: 900;
+    letter-spacing: -.025em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .goal-value {
+    font-size: 30px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: -.015em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .progress-track {
+    position: relative;
+    width: 100%;
+    height: 18px;
+    margin-top: 16px;
+    background: var(--track);
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    width: 0%;
+    height: 100%;
+    background: var(--candy-red);
+    transition: width 700ms cubic-bezier(.22,.8,.28,1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .progress-fill { transition: none; }
+  }
+</style>
+</head>
+<body>
+<section class="fundraiser" aria-label="Hoops for Hope fundraising progress">
+  <div class="top">
+    <div class="block">
+      <div class="label">Raised</div>
+      <div class="raised-value" id="raised">$26,939.98</div>
+    </div>
+
+    <div class="block goal">
+      <div class="label">2026 Goal</div>
+      <div class="goal-value" id="goal">$70,000</div>
+    </div>
+  </div>
+
+  <div class="progress-track">
+    <div class="progress-fill" id="fill"></div>
+  </div>
+</section>
+
+<script>
+(() => {
+  const SEED = { raised: 26939.98, goal: 70000.00 };
+  const STORAGE_KEY = "hoops-for-hope-fundraiser-last-good-v1";
+  const UPDATE_INTERVAL_MS = 60 * 1000;
+  const REQUEST_TIMEOUT_MS = 9000;
+
+  const raisedEl = document.getElementById("raised");
+  const goalEl = document.getElementById("goal");
+  const fillEl = document.getElementById("fill");
+
+  let inFlight = false;
+  let lastGood = loadSaved() || SEED;
+
+  const money = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+
+  const wholeMoney = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0
+  });
+
+  function loadSaved() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      const value = JSON.parse(raw);
+
+      if (
+        Number.isFinite(value.raised) &&
+        Number.isFinite(value.goal) &&
+        value.raised >= 0 &&
+        value.goal >= 50000
+      ) {
+        return value;
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  function saveGood(value) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+    } catch (_) {}
+  }
+
+  function render(value) {
+    const pct = Math.max(0, Math.min(100, (value.raised / value.goal) * 100));
+
+    raisedEl.textContent = money.format(value.raised);
+    goalEl.textContent = wholeMoney.format(value.goal);
+    fillEl.style.width = pct.toFixed(4) + "%";
+  }
+
+  function parseFundraiser(text) {
+    // The homepage currently exposes the overall campaign in the form:
+    // "$26,939.98 of $70,000.00 goal"
+    const matches = [...text.matchAll(
+      /\$([\d,]+(?:\.\d{2})?)\s+of\s+\$([\d,]+(?:\.\d{2})?)\s+goal/gi
+    )];
+
+    for (const match of matches) {
+      const raised = Number(match[1].replace(/,/g, ""));
+      const goal = Number(match[2].replace(/,/g, ""));
+
+      // Reject player-level goals and malformed matches.
+      if (
+        Number.isFinite(raised) &&
+        Number.isFinite(goal) &&
+        raised >= 0 &&
+        goal >= 50000
+      ) {
+        return { raised, goal };
+      }
+    }
+
+    throw new Error("Overall fundraiser total was not found.");
+  }
+
+  async function fetchText(url) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+    try {
+      const response = await fetch(url, {
+        cache: "no-store",
+        signal: controller.signal
+      });
+
+      if (!response.ok) {
+        throw new Error("HTTP " + response.status);
+      }
+
+      return await response.text();
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  async function update() {
+    if (inFlight) return;
+    inFlight = true;
+
+    try {
+      const cacheBust = Date.now();
+
+      // Try Play For A Purpose directly first.
+      let text;
+      try {
+        text = await fetchText(
+          "https://playforapurpose.org/?overlay_refresh=" + cacheBust
+        );
+      } catch (_) {
+        // Local browser sources can be blocked by the site's CORS policy.
+        // This read-only text mirror is used only as a fallback.
+        text = await fetchText(
+          "https://r.jina.ai/https://playforapurpose.org/?overlay_refresh=" +
+          cacheBust
+        );
+      }
+
+      const next = parseFundraiser(text);
+
+      // Only a successfully fetched + parsed value can replace the current total.
+      lastGood = next;
+      saveGood(lastGood);
+      render(lastGood);
+
+    } catch (_) {
+      // Deliberately do nothing.
+      // The last successfully displayed amount stays on screen.
+      render(lastGood);
+    } finally {
+      inFlight = false;
+    }
+  }
+
+  // Always show a valid value immediately.
+  render(lastGood);
+
+  // Refresh immediately, then once per minute.
+  update();
+  setInterval(update, UPDATE_INTERVAL_MS);
+
+  // Refresh promptly if OBS/browser source becomes visible again.
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) update();
+  });
+})();
+</script>
+</body>
+</html>
